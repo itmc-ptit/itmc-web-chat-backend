@@ -6,7 +6,7 @@ import { UserModule } from './users/users.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost/authentication'),
+    MongooseModule.forRoot('mongodb://localhost/itmc-web-chat'),
     AuthModule,
     UserModule,
   ],
