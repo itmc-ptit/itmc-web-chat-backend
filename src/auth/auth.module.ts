@@ -8,7 +8,10 @@ import { RefreshTokenStrategy } from '../strategies/refreshToken.strategy';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [JwtModule.register({}), UserModule, ConfigModule],
+  imports: [JwtModule.register({
+    secret: process.env.JWT_SECRET,
+    signOptions: { expiresIn: '15m' }, 
+  }), UserModule, ConfigModule],
   controllers: [AuthController],
   providers: [AuthService, AccessTokenStrategy, RefreshTokenStrategy],
 })
