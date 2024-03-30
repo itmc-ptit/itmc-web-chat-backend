@@ -26,6 +26,8 @@ export class AppGateway
   @SubscribeMessage('msgToServer')
   handleMessage(client: Socket, payload: string): void {
     // * The `emit()` function can be used to send data to all clients which connected to the server.
+    console.log(payload);
+
     this.server.emit('msgToClient', payload);
   }
 
