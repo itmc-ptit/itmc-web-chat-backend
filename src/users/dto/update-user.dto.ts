@@ -14,5 +14,11 @@ export class UpdateUserDto {
   dob: Date;
 
   @ApiProperty()
-  refreshToken: string;
+  update_at: Date;
+
+  @ApiProperty()
+  delete_at: Date;
+
+  @ApiProperty()
+  refresh_token: string;
 }

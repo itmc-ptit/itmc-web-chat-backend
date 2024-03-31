@@ -32,6 +32,9 @@ export class User {
   delete_at: Date;
 
   @Prop()
+  update_at: Date;
+
+  @Prop()
   refresh_token: string;
 }
 

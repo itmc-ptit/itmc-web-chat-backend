@@ -15,43 +15,52 @@ export class AuthService {
   ) {}
 
   async signUp(createUserDto: CreateUserDto): Promise<any> {
-    // Check if user exists
+    // * Check if user exists
     const userExists = await this.usersService.findByEmail(createUserDto.email);
     if (userExists) {
       throw new BadRequestException('User already exists');
     }
 
-    // Hash password
+    // * Hash password
     const hash = await this.hashData(createUserDto.password);
     const newUser = await this.usersService.create({
       ...createUserDto,
       password: hash,
+      create_at: new Date(),
+      delete_at: null,
+      update_at: new Date(),
     });
+    
+    // * Generate tokens
     const tokens = await this.getTokens(newUser._id, newUser.email);
-    await this.updateRefreshToken(newUser._id, tokens.refreshToken);
+    await this.updateRefreshToken(newUser._id, tokens.refresh_token);
     return tokens;
   }
 
   async signIn(data: AuthDto) {
-    // Check if user exists
+    // * Check if user exists
     const user = await this.usersService.findByEmail(data.email);
     if (!user) throw new BadRequestException('User does not exist');
+    
     const passwordMatches = await argon2.verify(user.password, data.password);
     if (!passwordMatches)
       throw new BadRequestException('Password is incorrect');
+
     const tokens = await this.getTokens(user._id, user.email);
-    await this.updateRefreshToken(user._id, tokens.refreshToken);
+    await this.updateRefreshToken(user._id, tokens.refresh_token);
     return tokens;
   }
 
   async logout(userId: string) {
-    const user = this.usersService.findById(userId);
+    const user = await this.usersService.findById(userId);
     return this.usersService.update(userId, {
-      refreshToken: null,
       first_name: (await user).first_name,
       last_name: (await user).last_name,
       gender: (await user).gender,
       dob: (await user).dob,
+      refresh_token: null,
+      update_at: user.update_at,
+      delete_at: user.delete_at,
     });
   }
 
@@ -60,14 +69,16 @@ export class AuthService {
   }
 
   async updateRefreshToken(userId: string, refreshToken: string) {
-    const user = this.usersService.findById(userId);
+    const user = await this.usersService.findById(userId);
     const hashedRefreshToken = await this.hashData(refreshToken);
     await this.usersService.update(userId, {
-      refreshToken: hashedRefreshToken,
-      first_name: (await user).first_name,
-      last_name: (await user).last_name,
-      gender: (await user).gender,
-      dob: (await user).dob,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      dob: user.dob,
+      gender: user.gender,
+      update_at: new Date(),
+      delete_at: user.delete_at,
+      refresh_token: hashedRefreshToken,
     });
   }
 
@@ -96,8 +107,8 @@ export class AuthService {
     ]);
 
     return {
-      accessToken,
-      refreshToken,
+      jwt: accessToken,
+      refresh_token: refreshToken,
     };
   }
 }

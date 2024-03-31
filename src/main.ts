@@ -9,7 +9,7 @@ async function bootstrap() {
   mongoose.set('debug', true);
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors({
-    origin: 'http://localhost:3001',
+    origin: 'http://localhost:8080',
   });
   const configService = app.get(ConfigService);
   app.useStaticAssets(join(__dirname, '..', 'static'));

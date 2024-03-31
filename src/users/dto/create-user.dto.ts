@@ -20,5 +20,14 @@ export class CreateUserDto {
   dob: Date;
 
   @ApiProperty()
-  refreshToken: string;
+  create_at: Date;
+
+  @ApiProperty()
+  delete_at: Date;
+
+  @ApiProperty()
+  update_at: Date;
+
+  @ApiProperty()
+  refresh_token: string;
 }
