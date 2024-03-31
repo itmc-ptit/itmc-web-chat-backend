@@ -25,9 +25,4 @@ export class AuthController {
   signin(@Body() data: AuthDto) {
     return this.authService.signIn(data);
   }
-
-  @Get('logout')
-  logout(@Req() req: Request) {
-    this.authService.logout(req.user['sub']);
-  }
 }
