@@ -20,6 +20,6 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "noImplicitAny": true,
-    "target": "es6",
+    "target": "es6"
   }
 }

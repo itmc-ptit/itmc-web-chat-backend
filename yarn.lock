@@ -808,13 +808,21 @@
     multer "1.4.4-lts.1"
     tslib "2.6.2"
 
-"@nestjs/platform-socket.io@^10.0.0", "@nestjs/platform-socket.io@^10.3.3":
-  version "10.3.3"
-  resolved "https://registry.npmjs.org/@nestjs/platform-socket.io/-/platform-socket.io-10.3.3.tgz"
-  integrity sha512-QqM9BMTdYPvXOqx3oWrv130HOtc2krPvfgqgDsPWkBLfR+TssrA5QDaTW8HSjEQAfmugvHwhEAAU4+yXRl6tKg==
+"@nestjs/platform-socket.io@^10.0.0", "@nestjs/platform-socket.io@^10.3.7":
+  version "10.3.7"
+  resolved "https://registry.npmjs.org/@nestjs/platform-socket.io/-/platform-socket.io-10.3.7.tgz"
+  integrity sha512-T9VbVgEUnbid/RiywN9/8YQ8pAGDP++0nX73l4kIWeDWkz5DEh4aLB7O/JvLA3/xRHdjTZ4RiRZazwqSWi1Sog==
   dependencies:
-    socket.io "4.7.4"
+    socket.io "4.7.5"
     tslib "2.6.2"
+
+"@nestjs/platform-ws@^10.3.7":
+  version "10.3.7"
+  resolved "https://registry.npmjs.org/@nestjs/platform-ws/-/platform-ws-10.3.7.tgz"
+  integrity sha512-lOvZ8u5UdL0FgAOdWosDXefVgDikPd4j5el81emkx+H0pFsysfHXSSoSvMLQijdhENqHSl3buRhO5n3M3uia1w==
+  dependencies:
+    tslib "2.6.2"
+    ws "8.16.0"
 
 "@nestjs/schematics@^10.0.0", "@nestjs/schematics@^10.0.1":
   version "10.1.1"
@@ -846,10 +854,10 @@
   dependencies:
     tslib "2.6.2"
 
-"@nestjs/websockets@^10.0.0", "@nestjs/websockets@^10.3.3":
-  version "10.3.3"
-  resolved "https://registry.npmjs.org/@nestjs/websockets/-/websockets-10.3.3.tgz"
-  integrity sha512-cR5cB0bLS87vd0iu7Nud/4x2EH1Vs0aIgwGWd0eH/5SAw0rrDNU81PiOde+rnMXETbxvSVfOZuLRyn7/WQtGUg==
+"@nestjs/websockets@^10.0.0", "@nestjs/websockets@^10.3.7":
+  version "10.3.7"
+  resolved "https://registry.npmjs.org/@nestjs/websockets/-/websockets-10.3.7.tgz"
+  integrity sha512-iYdsWiRNPUy0XzPoW44bx2MW1griuraTr5fNhoe2rUSNO0mEW1aeXp4v56KeZDLAss31WbeckC5P3N223Fys5g==
   dependencies:
     iterare "1.2.1"
     object-hash "3.0.0"
@@ -5022,10 +5030,10 @@ socket.io-parser@~4.2.4:
     "@socket.io/component-emitter" "~3.1.0"
     debug "~4.3.1"
 
-socket.io@4.7.4:
-  version "4.7.4"
-  resolved "https://registry.npmjs.org/socket.io/-/socket.io-4.7.4.tgz"
-  integrity sha512-DcotgfP1Zg9iP/dH9zvAQcWrE0TtbMVwXmlV4T4mqsvY+gw+LqUGPfx2AoVyRk0FLME+GQhufDMyacFmw7ksqw==
+socket.io@4.7.5:
+  version "4.7.5"
+  resolved "https://registry.npmjs.org/socket.io/-/socket.io-4.7.5.tgz"
+  integrity sha512-DmeAkF6cwM9jSfmp6Dr/5/mfMwb5Z5qRrSXLpo3Fq5SqyU8CMF15jIN4ZhfSwu35ksM1qmHZDQ/DK5XTccSTvA==
   dependencies:
     accepts "~1.3.4"
     base64id "~2.0.0"
@@ -5721,6 +5729,11 @@ ws@~8.11.0:
   version "8.11.0"
   resolved "https://registry.npmjs.org/ws/-/ws-8.11.0.tgz"
   integrity sha512-HPG3wQd9sNQoT9xHyNCXoDUa+Xw/VevmY9FoHyQ+g+rrMn4j6FB4np7Z0OhdTgjx6MgQLK7jwSy1YecU1+4Asg==
+
+ws@8.16.0:
+  version "8.16.0"
+  resolved "https://registry.npmjs.org/ws/-/ws-8.16.0.tgz"
+  integrity sha512-HS0c//TP7Ina87TfiPUz1rQzMhHrl/SG2guqRcTOIUYD2q8uhUdNHZYJUaQ8aTGPzCh+c6oawMKW35nFl1dxyQ==
 
 xtend@^4.0.0:
   version "4.0.2"

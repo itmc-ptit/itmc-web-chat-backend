@@ -1,18 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'path';
-import { ConfigService } from '@nestjs/config';
-import * as mongoose from 'mongoose';
+import { WsAdapter } from '@nestjs/platform-ws';
 
 async function bootstrap() {
-  mongoose.set('debug', true);
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: 'http://localhost:8080',
+    origin: 'http://localhost:3000', // Allow requests from this origin
+    methods: ['GET', 'POST'], // Allow only specified methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allow only specified headers
   });
-  const configService = app.get(ConfigService);
-  app.useStaticAssets(join(__dirname, '..', 'static'));
-  await app.listen(3000);
+
+  await app.listen(8080);
 }
 bootstrap();

@@ -3,6 +3,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './/users/users.module';
 import { ConfigModule } from '@nestjs/config';
+import { ChatModule } from './chat/chat.module';
+import { GroupChatsModule } from './group-chats/group-chats.module';
 
 @Module({
   imports: [
@@ -10,7 +12,8 @@ import { ConfigModule } from '@nestjs/config';
     AuthModule,
     UserModule,
     ConfigModule.forRoot(),
-    
+    ChatModule,
+    GroupChatsModule,
   ],
   providers: [Logger],
   controllers: [],

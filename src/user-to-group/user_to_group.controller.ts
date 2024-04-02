@@ -1,6 +1,6 @@
 import { Controller, Post, Param, Body } from '@nestjs/common';
 import { UserToGroupService } from './user_to_group.service';
-import { CreateUserToGroupDto } from './create_user_to_group.dto';
+import { CreateUserToGroupDto } from './dto/create_user_to_group.dto';
 import { UserToGroup } from './user_to_group.interface';
 
 @Controller('user-to-group')
