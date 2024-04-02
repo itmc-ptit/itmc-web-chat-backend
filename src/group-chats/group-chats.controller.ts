@@ -3,7 +3,7 @@ import { GroupChatsService } from './group-chats.service';
 import { CreateGroupChatDto } from './dto/create-group-chat.dto';
 import { UpdateGroupChatDto } from './dto/update-group-chat.dto';
 
-@Controller('group-chats')
+@Controller('api/v1/group-chats')
 export class GroupChatsController {
   constructor(private readonly groupChatsService: GroupChatsService) {}
 
