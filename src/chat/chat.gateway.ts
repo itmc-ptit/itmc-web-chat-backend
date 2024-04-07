@@ -1,36 +1,53 @@
-import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
-import { Logger } from '@nestjs/common';
+import { SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Socket, Server } from 'socket.io';
+import { ChatService } from "./chat.service";
 
 @WebSocketGateway({cors: true})
-export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
-    private readonly logger = new Logger(ChatGateway.name);
+export class ChatGateway {
     @WebSocketServer() server: Server;
-    userCount: number = 0;
 
-    afterInit(server: any) {
-        console.log('Server initialized');
+    constructor(private readonly chatService: ChatService) {}
+
+    @SubscribeMessage('send-message')
+    async handleIncomingMessage(client: Socket, payload: any) {
+        const roomId = payload.roomId;
+        const message = payload.message;
+        const sender = payload.sender;
+        console.log('client sending message:', client.id);
+        console.log('payload:', payload);
+        console.log('roomId:', roomId);
+        console.log('message:', message);
+        console.log('sender:', sender);
+
+        if (roomId === '') {
+            client.broadcast.emit('receive-message', payload);
+        }
+        else {
+            client.to(roomId).emit('receive-message', payload);
+        }
     }
 
-    async handleConnection() {
-        console.log('Connection established!');
-        this.userCount++;
-        console.log('User count: ', this.userCount);
-        console.log('-----------------------------------');
-    }
+    @SubscribeMessage('join-room')
+    async handleJoinRoom(client: Socket, payload: any) {
+        for (let room of client.rooms.keys()) {
+            if (room !== client.id) {
+                client.leave(room);
+                console.log(`client ${client.id} leaving room:`, room);
+            }
+        }
 
-    async handleDisconnect() {
-        console.log('Client disconected!');
-        this.userCount--;
-        console.log('User count: ', this.userCount);
-        console.log('-----------------------------------');
-    }
+        const roomId = payload.roomId;
+        const username = payload.username;
+        console.log('client joining room:', client.id);
+        console.log('payload:', payload);
+        console.log('roomId:', roomId);
+        console.log('username:', username);
 
-    @SubscribeMessage('chat')
-    async onChat(client: Socket, payload: string) {
-
-        console.log("Cilent: ", client.id);
-        console.log('Message:', payload);
-        this.server.emit('message', payload);
+        client.join(roomId);
+        client.to(roomId).emit('receive-message', {
+            roomId: roomId,
+            message: `${username} has joined the room.`,
+            sender: 'server'
+        });
     }
 }
