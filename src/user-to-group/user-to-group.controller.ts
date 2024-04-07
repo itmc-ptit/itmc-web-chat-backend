@@ -28,7 +28,11 @@ export class UserToGroupController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserToGroupDto: UpdateUserToGroupDto) {
+  update(@Param('id') id: string, @Body() body: any) {
+    const updateUserToGroupDto: UpdateUserToGroupDto = {
+      role: body.role,
+      isBlocked: body.is_blocked,
+    };
     return this.userToGroupService.update(id, updateUserToGroupDto);
   }
 

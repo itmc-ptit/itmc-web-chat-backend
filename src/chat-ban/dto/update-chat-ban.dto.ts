@@ -1,4 +1,6 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateChatBanDto } from './create-chat-ban.dto';
+import { ApiProperty } from "@nestjs/swagger";
 
-export class UpdateChatBanDto extends PartialType(CreateChatBanDto) {}
+export class UpdateChatBanDto {
+    @ApiProperty()
+    endAt: Date;
+}

@@ -29,7 +29,11 @@ export class ChatHistoryController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateChatHistoryDto: UpdateChatHistoryDto) {
+  update(@Param('id') id: string, @Body() body: any) {
+    const updateChatHistoryDto: UpdateChatHistoryDto = {
+      message: body.message,
+      attachment: body.attachment,
+    };
     return this.chatHistoryService.update(id, updateChatHistoryDto);
   }
 

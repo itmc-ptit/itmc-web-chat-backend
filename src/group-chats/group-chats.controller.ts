@@ -23,7 +23,12 @@ export class GroupChatsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGroupChatDto: UpdateGroupChatDto) {
+  update(@Param('id') id: string, @Body() body: any) {
+    const updateGroupChatDto: UpdateGroupChatDto = {
+      name: body.name,
+      description: body.description,
+      updatedAt: body.updated_at,
+    };
     return this.groupChatsService.update(id, updateGroupChatDto);
   }
 
