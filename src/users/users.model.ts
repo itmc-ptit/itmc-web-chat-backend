@@ -3,10 +3,8 @@ import { Document } from 'mongoose';
 
 export type UserDocument = User & Document;
 
-// *  The `@Schema` marked the class as a schema for the expecting table in database
 @Schema()
 export class User {
-  // * The `@Prop` marked the variable as a properties of a table
   @Prop({ required: true, unique: true })
   email: string;
 

@@ -6,15 +6,12 @@ export type GroupChatDocument = GroupChat & Document;
 @Schema()
 export class GroupChat {
     @Prop({ required: true, unique: true })
-    id: string;
-
-    @Prop({ required: true, unique: true })
     name: string;
 
     @Prop({ required: true, unique: false })
     description: string;
 
-    @Prop({ required: true, unique: true })
+    @Prop({ required: true, unique: false })
     host_id: string;
 
     @Prop({ required: true, unique: false })

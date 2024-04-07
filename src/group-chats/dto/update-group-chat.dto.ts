@@ -1,4 +1,12 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateGroupChatDto } from './create-group-chat.dto';
+import { ApiProperty } from "@nestjs/swagger";
 
-export class UpdateGroupChatDto extends PartialType(CreateGroupChatDto) {}
+export class UpdateGroupChatDto {
+    @ApiProperty()
+    name: string;
+
+    @ApiProperty()
+    description: string;
+
+    @ApiProperty()
+    updatedAt: Date;
+}

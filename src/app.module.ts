@@ -5,6 +5,9 @@ import { UserModule } from './/users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { ChatModule } from './chat/chat.module';
 import { GroupChatsModule } from './group-chats/group-chats.module';
+import { ChatHistoryModule } from './chat-history/chat-history.module';
+import { ChatBanModule } from './chat-ban/chat-ban.module';
+import { UserToGroupModule } from './user-to-group/user-to-group.module';
 
 @Module({
   imports: [
@@ -14,6 +17,9 @@ import { GroupChatsModule } from './group-chats/group-chats.module';
     ConfigModule.forRoot(),
     ChatModule,
     GroupChatsModule,
+    ChatHistoryModule,
+    ChatBanModule,
+    UserToGroupModule,
   ],
   providers: [Logger],
   controllers: [],

@@ -18,17 +18,17 @@ export class GroupChatsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.groupChatsService.findById(+id);
+  findById(@Param('id') id: string) {
+    return this.groupChatsService.findById(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateGroupChatDto: UpdateGroupChatDto) {
-    return this.groupChatsService.update(+id, updateGroupChatDto);
+    return this.groupChatsService.update(id, updateGroupChatDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.groupChatsService.remove(+id);
+    return this.groupChatsService.remove(id);
   }
 }
