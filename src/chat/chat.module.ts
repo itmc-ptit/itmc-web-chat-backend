@@ -3,8 +3,10 @@ import { ChatGateway } from './chat.gateway';
 import { ChatService } from './chat.service';
 import { UserJoinedObserver } from './observers/user-joined.observer';
 import { MessageObserver } from './observers/message.observer';
+import { ChatHistoryModule } from 'src/chat-history/chat-history.module';
 
 @Module({
-    providers:[UserJoinedObserver, MessageObserver, ChatService, ChatGateway]
+  imports: [ChatHistoryModule],
+  providers: [UserJoinedObserver, MessageObserver, ChatService, ChatGateway],
 })
 export class ChatModule {}

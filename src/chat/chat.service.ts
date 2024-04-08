@@ -1,32 +1,54 @@
-import { Injectable } from "@nestjs/common";
-import { Subject } from "rxjs";
+import { Inject, Injectable } from '@nestjs/common';
+import { Subject } from 'rxjs';
+import { MessagePayLoad } from './dto/message.payload.dto';
+import { JoinRoomPayload } from './dto/join-room.payload.dto';
+import { ChatHistoryService } from 'src/chat-history/chat-history.service';
 
 @Injectable()
 export class ChatService {
-    private messageSubject = new Subject<{
-        roomId: string;
-        userId: string;
-        message: string;
-    }>();
+  constructor(
+    @Inject(ChatHistoryService)
+    private chatHistoryService: ChatHistoryService,
+  ) {}
 
-    private userJoinedSubject = new Subject<{
-        roomId: string;
-        userId: string;
-    }>();
+  private messageSubject = new Subject<{
+    roomId: string;
+    userId: string;
+    message: string;
+  }>();
 
-    handleMessage(roomId: string, userId: string, message: string) {
-        this.messageSubject.next({ roomId, userId, message });
-    }
+  private userJoinedSubject = new Subject<{
+    roomId: string;
+    userId: string;
+  }>();
 
-    handleUserJoined(roomId: string, userId: string) {
-        this.userJoinedSubject.next({ roomId, userId });
-    }
+  handleMessage(payload: MessagePayLoad) {
+    // * Saving the message to the database
+    this.chatHistoryService.create({
+      userId: payload.senderId,
+      chatId: payload.roomId,
+      message: payload.message,
+      attachment: payload.attachements,
+    });
 
-    onMessage() {
-        return this.messageSubject.asObservable();
-    }
+    // * This is for observer pattern
+    // this.messageSubject.next({
+    //   roomId: payload.roomId,
+    //   userId: payload.senderId,
+    //   message: payload.message,
+    // });
+  }
 
-    onUserJoined() {
-        return this.userJoinedSubject.asObservable();
-    }
+  handleUserJoined(payload: JoinRoomPayload) {
+    // * This is for observer pattern
+    // this.userJoinedSubject.next({ roomId, userId });
+  }
+
+  onMessage() {
+    return this.messageSubject.asObservable();
+  }
+
+  onUserJoined() {
+    return this.userJoinedSubject.asObservable();
+  }
 }
