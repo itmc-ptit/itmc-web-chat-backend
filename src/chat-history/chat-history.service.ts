@@ -8,8 +8,9 @@ import { ChatHistoryDocument } from './entities/chat-history.model';
 @Injectable()
 export class ChatHistoryService {
   constructor(
-    @InjectModel('chat_histories') private readonly chatHistoryModel: Model<ChatHistoryDocument>,
-  ) { }
+    @InjectModel('chat_histories')
+    private readonly chatHistoryModel: Model<ChatHistoryDocument>,
+  ) {}
 
   async create(createChatHistoryDto: CreateChatHistoryDto) {
     const createdChatHistory = new this.chatHistoryModel(createChatHistoryDto);
@@ -25,8 +26,8 @@ export class ChatHistoryService {
     return this.chatHistoryModel.findById(id);
   }
 
-  async findAllByCharId(charId: string) {
-    return this.chatHistoryModel.find({ charId }).exec();
+  async findAllByChatId(chatId: string) {
+    return this.chatHistoryModel.find({ chatId: chatId }).exec();
   }
 
   async update(id: string, updateChatHistoryDto: UpdateChatHistoryDto) {

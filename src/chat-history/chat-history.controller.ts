@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { ChatHistoryService } from './chat-history.service';
 import { CreateChatHistoryDto } from './dto/create-chat-history.dto';
 import { UpdateChatHistoryDto } from './dto/update-chat-history.dto';
@@ -26,6 +34,11 @@ export class ChatHistoryController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.chatHistoryService.findById(id);
+  }
+
+  @Get('chat/:chatId')
+  findByChatId(@Param('chatId') chatId: string) {
+    return this.chatHistoryService.findAllByChatId(chatId);
   }
 
   @Patch(':id')

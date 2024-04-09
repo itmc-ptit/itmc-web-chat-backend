@@ -16,11 +16,11 @@ export class ChatGateway {
 
   @SubscribeMessage('send-message')
   async handleIncomingMessage(client: Socket, payload: MessagePayLoad) {
-    // console.log('client sending message:', client.id);
-    // console.log('payload:', payload);
-    // console.log('roomId:', roomId);
-    // console.log('message:', message);
-    // console.log('sender:', sender);
+    console.log('client sending message:', client.id);
+    console.log('payload:', payload);
+    console.log('roomId:', payload.roomId);
+    console.log('message:', payload.message);
+    console.log('sender:', payload.senderId);
 
     // * Save the message to the database
     this.chatService.handleMessage(payload);
@@ -48,6 +48,17 @@ export class ChatGateway {
 
     // * Join the room
     client.join(payload.roomId);
+
+    const messages = this.chatService.handleUserJoined(payload);
+    for (let message of await messages) {
+      client.emit('receive-message', {
+        roomId: roomId,
+        message: message.message,
+        sender: message.userId,
+        attachment: message.attachment,
+      });
+      console.log('message:', message);
+    }
 
     // * Broadcast a message to the room to notify that a user has joined
     client.to(payload.roomId).emit('receive-message', {

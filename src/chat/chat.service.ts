@@ -39,7 +39,10 @@ export class ChatService {
     // });
   }
 
-  handleUserJoined(payload: JoinRoomPayload) {
+  async handleUserJoined(payload: JoinRoomPayload) {
+    const messages = this.chatHistoryService.findAllByChatId(payload.roomId);
+    return messages;
+
     // * This is for observer pattern
     // this.userJoinedSubject.next({ roomId, userId });
   }
