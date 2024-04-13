@@ -23,16 +23,16 @@ export class User {
   @Prop({ required: true })
   dob: Date;
 
-  @Prop()
+  @Prop({ default: Date.now })
   create_at: Date;
 
-  @Prop()
+  @Prop({ default: null })
   delete_at: Date;
 
-  @Prop()
+  @Prop({ default: Date.now })
   update_at: Date;
 
-  @Prop()
+  @Prop({ default: null })
   refresh_token: string;
 }
 

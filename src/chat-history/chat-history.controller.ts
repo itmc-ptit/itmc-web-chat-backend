@@ -18,8 +18,8 @@ export class ChatHistoryController {
   constructor(private readonly chatHistoryService: ChatHistoryService) {}
 
   @Get('chat/:chat_id')
-  findByChatId(@Param('chat_id') chatId: string) {
-    return this.chatHistoryService.findAllByChatId(chatId);
+  findByChatId(@Param('chat_id') chat_id: string) {
+    return this.chatHistoryService.findAllByChatId(chat_id);
   }
 
   @Post()

@@ -29,15 +29,8 @@ export class UserToGroupService {
     return this.userToGroupModel.findById(id);
   }
 
-  // async findByUserId(userId: string): Promise<UserToGroupDocument[]> {
-  //   return this.userToGroupModel.find({ userId: userId }).exec();
-  // }
-
   async findByUserId(userId: string): Promise<UserToGroupDocument[]> {
-    return this.userToGroupModel
-      .find({ userId: userId })
-      .populate('chatId')
-      .exec();
+    return this.userToGroupModel.find({ userId: userId }).exec();
   }
 
   async update(
