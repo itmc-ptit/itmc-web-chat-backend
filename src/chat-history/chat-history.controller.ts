@@ -10,8 +10,10 @@ import {
 import { ChatHistoryService } from './chat-history.service';
 import { CreateChatHistoryDto } from './dto/create-chat-history.dto';
 import { UpdateChatHistoryDto } from './dto/update-chat-history.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('api/v1/chat-histories')
+@ApiTags('Chat Histories')
 export class ChatHistoryController {
   constructor(private readonly chatHistoryService: ChatHistoryService) {}
 

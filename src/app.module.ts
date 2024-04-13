@@ -8,7 +8,7 @@ import { GroupChatsModule } from './group-chats/group-chats.module';
 import { ChatHistoryModule } from './chat-history/chat-history.module';
 import { ChatBanModule } from './chat-ban/chat-ban.module';
 import { UserToGroupModule } from './user-to-group/user-to-group.module';
-require('dotenv');
+require('dotenv').config();
 
 @Module({
   imports: [

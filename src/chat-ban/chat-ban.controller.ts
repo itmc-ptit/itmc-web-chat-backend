@@ -2,8 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { ChatBanService } from './chat-ban.service';
 import { CreateChatBanDto } from './dto/create-chat-ban.dto';
 import { UpdateChatBanDto } from './dto/update-chat-ban.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('api/v1/chat-bans')
+@ApiTags('Chat Ban')
 export class ChatBanController {
   constructor(private readonly chatBanService: ChatBanService) {}
 
