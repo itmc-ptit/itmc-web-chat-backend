@@ -32,7 +32,7 @@ export class User {
   @Prop({ default: Date.now })
   update_at: Date;
 
-  @Prop({ default: null })
+  @Prop({ default: Date.now })
   refresh_token: string;
 }
 

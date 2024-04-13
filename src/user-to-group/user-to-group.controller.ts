@@ -17,9 +17,8 @@ import { ApiTags } from '@nestjs/swagger';
 export class UserToGroupController {
   constructor(private readonly userToGroupService: UserToGroupService) {}
 
-  @Get('groups/:user_id')
-  findByUserId(@Param('user_id') userId: string) {
-    console.log('log:', userId);
+  @Get('groups/:userId')
+  findByUserId(@Param('userId') userId: string) {
     return this.userToGroupService.findByUserId(userId);
   }
 
