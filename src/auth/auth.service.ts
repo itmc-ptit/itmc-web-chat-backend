@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import * as argon2 from 'argon2';
@@ -30,7 +34,7 @@ export class AuthService {
       delete_at: null,
       update_at: new Date(),
     });
-    
+
     // * Generate tokens
     const tokens = await this.getTokens(newUser._id, newUser.email);
     await this.updateRefreshToken(newUser._id, tokens.refresh_token);
@@ -40,11 +44,11 @@ export class AuthService {
   async signIn(data: AuthDto) {
     // * Check if user exists
     const user = await this.usersService.findByEmail(data.email);
-    if (!user) throw new BadRequestException('User does not exist');
-    
+    if (!user) throw new UnauthorizedException('User does not exist');
+
     const passwordMatches = await argon2.verify(user.password, data.password);
     if (!passwordMatches)
-      throw new BadRequestException('Password is incorrect');
+      throw new UnauthorizedException('Password is incorrect');
 
     const tokens = await this.getTokens(user._id, user.email);
     await this.updateRefreshToken(user._id, tokens.refresh_token);
