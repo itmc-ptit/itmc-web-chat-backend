@@ -54,7 +54,7 @@ export class ChatGateway {
       client.emit('receive-message', {
         roomId: roomId,
         message: message.message,
-        sender: message.userId,
+        senderId: message.userId,
         attachment: message.attachment,
       });
       console.log('message:', message);
