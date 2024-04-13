@@ -8,13 +8,14 @@ import { Model } from 'mongoose';
 @Injectable()
 export class UserToGroupService {
   constructor(
-    @InjectModel('user_to_groups') private readonly userToGroupModel: Model<UserToGroupDocument>,
-  ) { }
+    @InjectModel('user_to_groups')
+    private readonly userToGroupModel: Model<UserToGroupDocument>,
+  ) {}
 
-  async create(createUserToGroupDto: CreateUserToGroupDto): Promise<UserToGroupDocument> {
-    const createdUserToGroup = new this.userToGroupModel(
-      createUserToGroupDto,
-    );
+  async create(
+    createUserToGroupDto: CreateUserToGroupDto,
+  ): Promise<UserToGroupDocument> {
+    const createdUserToGroup = new this.userToGroupModel(createUserToGroupDto);
     createdUserToGroup.joinedAt = new Date();
     createdUserToGroup.isBlocked = false;
     return createdUserToGroup.save();
@@ -28,7 +29,21 @@ export class UserToGroupService {
     return this.userToGroupModel.findById(id);
   }
 
-  async update(id: string, updateUserToGroupDto: UpdateUserToGroupDto): Promise<UserToGroupDocument> {
+  // async findByUserId(userId: string): Promise<UserToGroupDocument[]> {
+  //   return this.userToGroupModel.find({ userId: userId }).exec();
+  // }
+
+  async findByUserId(userId: string): Promise<UserToGroupDocument[]> {
+    return this.userToGroupModel
+      .find({ userId: userId })
+      .populate('chatId')
+      .exec();
+  }
+
+  async update(
+    id: string,
+    updateUserToGroupDto: UpdateUserToGroupDto,
+  ): Promise<UserToGroupDocument> {
     return this.userToGroupModel
       .findByIdAndUpdate(id, updateUserToGroupDto, { new: true })
       .exec();

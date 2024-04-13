@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { UserToGroupService } from './user-to-group.service';
 import { CreateUserToGroupDto } from './dto/create-user-to-group.dto';
 import { UpdateUserToGroupDto } from './dto/update-user-to-group.dto';
@@ -6,6 +14,12 @@ import { UpdateUserToGroupDto } from './dto/update-user-to-group.dto';
 @Controller('api/v1/user-to-groups')
 export class UserToGroupController {
   constructor(private readonly userToGroupService: UserToGroupService) {}
+
+  @Get('groups/')
+  findByUserId(@Param('id') userId: string) {
+    console.log('log:', userId);
+    return this.userToGroupService.findByUserId(userId);
+  }
 
   @Post()
   create(@Body() body: any) {

@@ -1,0 +1,50 @@
+<mxfile host="Electron" modified="2024-04-10T14:17:37.727Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.1.18 Chrome/120.0.6099.199 Electron/28.1.2 Safari/537.36" etag="S1rhb4hiET8Mlf2a6bCc" version="22.1.18" type="device">
+  <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
+    <mxGraphModel dx="702" dy="516" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
+        <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
+        <mxCell id="eapq5H2QJoRIv1UJSfem-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="eapq5H2QJoRIv1UJSfem-0" target="eapq5H2QJoRIv1UJSfem-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eapq5H2QJoRIv1UJSfem-3" value="HTTP API" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="eapq5H2QJoRIv1UJSfem-2">
+          <mxGeometry x="0.0074" y="3" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eapq5H2QJoRIv1UJSfem-0" value="User&lt;br&gt;Authentication" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="80" y="120" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eapq5H2QJoRIv1UJSfem-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="eapq5H2QJoRIv1UJSfem-1" target="eapq5H2QJoRIv1UJSfem-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eapq5H2QJoRIv1UJSfem-6" value="HTTP API" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="eapq5H2QJoRIv1UJSfem-5">
+          <mxGeometry x="-0.0355" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eapq5H2QJoRIv1UJSfem-1" value="Authenticated" style="rhombus;whiteSpace=wrap;html=1;direction=west;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="60" y="240" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="eapq5H2QJoRIv1UJSfem-15" value="Send UserID + GroupChatID via Socket.io.emit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="eapq5H2QJoRIv1UJSfem-4" target="eapq5H2QJoRIv1UJSfem-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eapq5H2QJoRIv1UJSfem-4" value="" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="80" y="390" width="120" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="eapq5H2QJoRIv1UJSfem-11" value="&lt;ul&gt;&lt;li&gt;Group chat 1&lt;/li&gt;&lt;li&gt;Group chat 2&lt;/li&gt;&lt;li&gt;Group chat 3&lt;/li&gt;&lt;/ul&gt;" style="text;strokeColor=none;fillColor=none;html=1;whiteSpace=wrap;verticalAlign=middle;overflow=hidden;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="70" y="420" width="130" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="eapq5H2QJoRIv1UJSfem-12" value="Group chat list" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="95" y="400" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="eapq5H2QJoRIv1UJSfem-13" value="Chat conversation&lt;br&gt;(entering room chat, load previous messages)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="65" y="570" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eapq5H2QJoRIv1UJSfem-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="eapq5H2QJoRIv1UJSfem-13" target="eapq5H2QJoRIv1UJSfem-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

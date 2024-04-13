@@ -30,7 +30,7 @@ export class AuthService {
       delete_at: null,
       update_at: new Date(),
     });
-    
+
     // * Generate tokens
     const tokens = await this.getTokens(newUser._id, newUser.email);
     await this.updateRefreshToken(newUser._id, tokens.refresh_token);
@@ -41,7 +41,7 @@ export class AuthService {
     // * Check if user exists
     const user = await this.usersService.findByEmail(data.email);
     if (!user) throw new BadRequestException('User does not exist');
-    
+
     const passwordMatches = await argon2.verify(user.password, data.password);
     if (!passwordMatches)
       throw new BadRequestException('Password is incorrect');

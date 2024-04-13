@@ -15,6 +15,11 @@ import { UpdateChatHistoryDto } from './dto/update-chat-history.dto';
 export class ChatHistoryController {
   constructor(private readonly chatHistoryService: ChatHistoryService) {}
 
+  @Get('chat/:chat_id')
+  findByChatId(@Param('chat_id') chatId: string) {
+    return this.chatHistoryService.findAllByChatId(chatId);
+  }
+
   @Post()
   create(@Body() body: any) {
     const createChatHistoryDto: CreateChatHistoryDto = {
@@ -34,11 +39,6 @@ export class ChatHistoryController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.chatHistoryService.findById(id);
-  }
-
-  @Get('chat/:chatId')
-  findByChatId(@Param('chatId') chatId: string) {
-    return this.chatHistoryService.findAllByChatId(chatId);
   }
 
   @Patch(':id')
