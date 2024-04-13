@@ -2,8 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { GroupChatsService } from './group-chats.service';
 import { CreateGroupChatDto } from './dto/create-group-chat.dto';
 import { UpdateGroupChatDto } from './dto/update-group-chat.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('api/v1/group-chats')
+@ApiTags('Group Chats')
 export class GroupChatsController {
   constructor(private readonly groupChatsService: GroupChatsService) {}
 

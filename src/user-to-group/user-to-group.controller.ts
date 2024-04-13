@@ -2,8 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { UserToGroupService } from './user-to-group.service';
 import { CreateUserToGroupDto } from './dto/create-user-to-group.dto';
 import { UpdateUserToGroupDto } from './dto/update-user-to-group.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('api/v1/user-to-groups')
+@ApiTags('User To Groups')
 export class UserToGroupController {
   constructor(private readonly userToGroupService: UserToGroupService) {}
 

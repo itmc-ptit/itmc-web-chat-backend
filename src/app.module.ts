@@ -8,10 +8,11 @@ import { GroupChatsModule } from './group-chats/group-chats.module';
 import { ChatHistoryModule } from './chat-history/chat-history.module';
 import { ChatBanModule } from './chat-ban/chat-ban.module';
 import { UserToGroupModule } from './user-to-group/user-to-group.module';
+require('dotenv').config();
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost/itmc-web-chat'),
+    MongooseModule.forRoot(`${process.env.DB_CONNECTION_STRING}`),
     AuthModule,
     UserModule,
     ConfigModule.forRoot(),
