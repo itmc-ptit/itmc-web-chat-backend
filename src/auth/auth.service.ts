@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -13,6 +15,7 @@ import { AuthDto } from './dto/auth.dto';
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
@@ -114,5 +117,16 @@ export class AuthService {
       jwt: accessToken,
       refresh_token: refreshToken,
     };
+  }
+
+  decodeToken(token: string) {
+    try {
+      const decodedToken = this.jwtService.decode(token) as any;
+      if (decodedToken) {
+        return decodedToken; // This will contain the payload (claims) of the token
+      }
+    } catch (error) {
+      throw new Error('Invalid token');
+    }
   }
 }

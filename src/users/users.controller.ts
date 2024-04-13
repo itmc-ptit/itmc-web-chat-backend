@@ -6,16 +6,31 @@ import {
   Patch,
   Param,
   Delete,
+  Headers,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthService } from 'src/auth/auth.service';
 
 @Controller('api/v1/users')
 @ApiTags('Users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    @Inject(forwardRef(() => AuthService))
+    private readonly authService: AuthService,
+  ) {}
+
+  @Get('me')
+  decodeToken(@Headers('authorization') authorization: string) {
+    const token = authorization.split(' ')[1]; // Extract token from Authorization header
+    const decodedToken = this.authService.decodeToken(token);
+    return decodedToken;
+  }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
