@@ -20,7 +20,7 @@ export class ChatHistoryController {
   @Post()
   create(@Body() body: any) {
     const createChatHistoryDto: CreateChatHistoryDto = {
-      userId: body.user_id,
+      userId: body.userId,
       groupChatId: body.groupChatId,
       message: body.message,
       attachment: body.attachment,
