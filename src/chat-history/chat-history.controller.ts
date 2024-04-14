@@ -28,6 +28,11 @@ export class ChatHistoryController {
     return this.chatHistoryService.create(createChatHistoryDto);
   }
 
+  @Get('chat/:groupChatId')
+  findByChatId(@Param('groupChatId') groupChatId: string) {
+    return this.chatHistoryService.findAllByChatId(groupChatId);
+  }
+
   @Get()
   findAll() {
     return this.chatHistoryService.findAll();
@@ -36,11 +41,6 @@ export class ChatHistoryController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.chatHistoryService.findById(id);
-  }
-
-  @Get('chat/:groupChatId')
-  findByChatId(@Param('groupChatId') groupChatId: string) {
-    return this.chatHistoryService.findAllByChatId(groupChatId);
   }
 
   @Patch(':id')

@@ -1,6 +1,6 @@
 export class MessagePayLoad {
-    roomId: string;
-    senderId: string;
-    message: string;
-    attachements: string;
+  roomId: string;
+  userId: string;
+  message: string;
+  attachements: string;
 }

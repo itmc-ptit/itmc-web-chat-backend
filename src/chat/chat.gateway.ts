@@ -20,7 +20,7 @@ export class ChatGateway {
     console.log('payload:', payload);
     console.log('roomId:', payload.roomId);
     console.log('message:', payload.message);
-    console.log('sender:', payload.senderId);
+    console.log('userId:', payload.userId);
 
     // * Save the message to the database
     this.chatService.handleMessage(payload);
@@ -50,21 +50,27 @@ export class ChatGateway {
     client.join(payload.roomId);
 
     const messages = this.chatService.handleUserJoined(payload);
-    for (let message of await messages) {
-      client.emit('receive-message', {
-        roomId: roomId,
-        message: message.message,
-        senderId: message.userId,
-        attachment: message.attachment,
-      });
-      console.log('message:', message);
+    if (messages) {
+      console.log('sending messages');
+      let counter: number = 0;
+      for (let message of await messages) {
+        counter++;
+        client.emit('receive-message', {
+          roomId: roomId,
+          message: message.message,
+          userId: message.userId,
+          attachment: message.attachment,
+        });
+        // console.log('message:', message);
+      }
+      console.log('sent', counter, 'messages');
     }
 
     // * Broadcast a message to the room to notify that a user has joined
     client.to(payload.roomId).emit('receive-message', {
       roomId: roomId,
       message: `${userId} has joined the room.`,
-      sender: 'server',
+      userId: 'server',
     });
   }
 }
