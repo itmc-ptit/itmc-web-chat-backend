@@ -1,15 +1,15 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateChatHistoryDto {
-    @ApiProperty()
-    userId: string;
-    
-    @ApiProperty()
-    chatId: string;
-    
-    @ApiProperty()
-    message: string;
+  @ApiProperty()
+  userId: string;
 
-    @ApiProperty()
-    attachment: string;
+  @ApiProperty()
+  groupChatId: string;
+
+  @ApiProperty()
+  message: string;
+
+  @ApiProperty()
+  attachment: string;
 }

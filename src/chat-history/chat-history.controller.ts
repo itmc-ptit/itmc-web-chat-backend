@@ -21,7 +21,7 @@ export class ChatHistoryController {
   create(@Body() body: any) {
     const createChatHistoryDto: CreateChatHistoryDto = {
       userId: body.user_id,
-      chatId: body.chat_id,
+      groupChatId: body.groupChatId,
       message: body.message,
       attachment: body.attachment,
     };
@@ -38,9 +38,9 @@ export class ChatHistoryController {
     return this.chatHistoryService.findById(id);
   }
 
-  @Get('chat/:chatId')
-  findByChatId(@Param('chatId') chatId: string) {
-    return this.chatHistoryService.findAllByChatId(chatId);
+  @Get('chat/:groupChatId')
+  findByChatId(@Param('groupChatId') groupChatId: string) {
+    return this.chatHistoryService.findAllByChatId(groupChatId);
   }
 
   @Patch(':id')

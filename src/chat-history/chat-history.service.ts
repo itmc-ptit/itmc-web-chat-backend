@@ -26,8 +26,8 @@ export class ChatHistoryService {
     return this.chatHistoryModel.findById(id);
   }
 
-  async findAllByChatId(chatId: string) {
-    return this.chatHistoryModel.find({ chatId: chatId }).exec();
+  async findAllByChatId(groupChatId: string) {
+    return this.chatHistoryModel.find({ groupChatId: groupChatId }).exec();
   }
 
   async update(id: string, updateChatHistoryDto: UpdateChatHistoryDto) {

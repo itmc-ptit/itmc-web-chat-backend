@@ -15,6 +15,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from 'src/auth/auth.service';
+import exp from 'constants';
 
 @Controller('api/v1/users')
 @ApiTags('Users')
@@ -29,7 +30,8 @@ export class UsersController {
   decodeToken(@Headers('authorization') authorization: string) {
     const token = authorization.split(' ')[1]; // Extract token from Authorization header
     const decodedToken = this.authService.decodeToken(token);
-    return decodedToken;
+    const user = this.usersService.findById(decodedToken.sub);
+    return user;
   }
 
   @Post()
