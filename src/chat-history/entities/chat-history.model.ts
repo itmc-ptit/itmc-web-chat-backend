@@ -14,7 +14,7 @@ export class ChatHistory {
     required: true,
   })
   @Prop({ required: true })
-  chatId: string;
+  groupChatId: string;
 
   @Prop({ required: true })
   message: string;
