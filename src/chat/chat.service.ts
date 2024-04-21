@@ -26,7 +26,7 @@ export class ChatService {
     // * Saving the message to the database
     this.chatHistoryService.create({
       userId: payload.userId,
-      groupChatId: payload.roomId,
+      groupChatId: payload.groupChatId,
       message: payload.message,
       attachment: payload.attachements,
     });

@@ -27,3 +27,5 @@ export class ChatHistory {
 }
 
 export const ChatHistorySchema = SchemaFactory.createForClass(ChatHistory);
+
+ChatHistorySchema.index({ userId: 1, groupChatId: 1 }, { unique: true });

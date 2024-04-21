@@ -18,7 +18,7 @@ export class ChatGateway {
   async handleIncomingMessage(client: Socket, payload: MessagePayLoad) {
     console.log('client sending message:', client.id);
     console.log('payload:', payload);
-    console.log('roomId:', payload.roomId);
+    console.log('roomId:', payload.groupChatId);
     console.log('message:', payload.message);
     console.log('userId:', payload.userId);
 
@@ -26,7 +26,7 @@ export class ChatGateway {
     this.chatService.handleMessage(payload);
 
     // * Broadcast the message to the room
-    client.to(payload.roomId).emit('receive-message', payload);
+    client.to(payload.groupChatId).emit('receive-message', payload);
   }
 
   @SubscribeMessage('join-room')
@@ -49,28 +49,29 @@ export class ChatGateway {
     // * Join the room
     client.join(payload.roomId);
 
-    const messages = this.chatService.handleUserJoined(payload);
-    if (messages) {
-      console.log('sending messages');
-      let counter: number = 0;
-      for (let message of await messages) {
-        counter++;
-        client.emit('receive-message', {
-          roomId: roomId,
-          message: message.message,
-          userId: message.userId,
-          attachment: message.attachment,
-        });
-        // console.log('message:', message);
-      }
-      console.log('sent', counter, 'messages');
-    }
+    // * Broadcast messages history to the user
+    // const messages = this.chatService.handleUserJoined(payload);
+    // if (messages) {
+    //   console.log('sending messages');
+    //   let counter: number = 0;
+    //   for (let message of await messages) {
+    //     counter++;
+    //     client.emit('receive-message', {
+    //       roomId: roomId,
+    //       message: message.message,
+    //       userId: message.userId,
+    //       attachment: message.attachment,
+    //     });
+    //     // console.log('message:', message);
+    //   }
+    //   console.log('sent', counter, 'messages');
+    // }
 
     // * Broadcast a message to the room to notify that a user has joined
-    client.to(payload.roomId).emit('receive-message', {
-      roomId: roomId,
-      message: `${userId} has joined the room.`,
-      userId: 'server',
-    });
+    // client.to(payload.roomId).emit('receive-message', {
+    //   roomId: roomId,
+    //   message: `${userId} has joined the room.`,
+    //   userId: 'server',
+    // });
   }
 }

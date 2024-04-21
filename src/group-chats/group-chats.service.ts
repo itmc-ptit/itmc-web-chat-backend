@@ -8,10 +8,13 @@ import { Model } from 'mongoose';
 @Injectable()
 export class GroupChatsService {
   constructor(
-    @InjectModel('group_chats') private readonly groupChatModel: Model<GroupChatDocument>,
+    @InjectModel('group_chats')
+    private readonly groupChatModel: Model<GroupChatDocument>,
   ) {}
 
-  async create(createGroupChatDto: CreateGroupChatDto): Promise<GroupChatDocument> {
+  async create(
+    createGroupChatDto: CreateGroupChatDto,
+  ): Promise<GroupChatDocument> {
     const createdGroupChat = new this.groupChatModel(createGroupChatDto);
     return createdGroupChat.save();
   }
@@ -24,10 +27,17 @@ export class GroupChatsService {
     return this.groupChatModel.findById(id);
   }
 
-  async update(id: string, updateGroupChatDto: UpdateGroupChatDto): Promise<GroupChatDocument> {
+  async findByName(name: string): Promise<GroupChatDocument> {
+    return this.groupChatModel.findOne({ name: name });
+  }
+
+  async update(
+    id: string,
+    updateGroupChatDto: UpdateGroupChatDto,
+  ): Promise<GroupChatDocument> {
     return this.groupChatModel
-    .findByIdAndUpdate(id, updateGroupChatDto, { new: true })
-    .exec();
+      .findByIdAndUpdate(id, updateGroupChatDto, { new: true })
+      .exec();
   }
 
   async remove(id: string): Promise<GroupChatDocument> {

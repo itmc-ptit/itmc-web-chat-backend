@@ -3,7 +3,15 @@ import { CreateUserToGroupDto } from './dto/create-user-to-group.dto';
 import { UpdateUserToGroupDto } from './dto/update-user-to-group.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserToGroupDocument } from './entities/user-to-group.model';
+import {
+  GroupChat,
+  GroupChatSchema,
+} from 'src/group-chats/models/group-chat.model'; // Update the path
 import { Model } from 'mongoose';
+import mongoose from 'mongoose';
+
+// Register GroupChat schema
+const GroupChatModel = mongoose.model('GroupChat', GroupChatSchema);
 
 @Injectable()
 export class UserToGroupService {
@@ -29,8 +37,19 @@ export class UserToGroupService {
     return this.userToGroupModel.findById(id);
   }
 
+  // TODO: Fix this method, so that the return result will populate the group chat model as well
   async findByUserId(userId: string): Promise<UserToGroupDocument[]> {
-    return this.userToGroupModel.find({ userId: userId }).exec();
+    return (
+      this.userToGroupModel
+        .find({ userId: userId })
+        // .populate({
+        //   path: 'chatId',
+        //   model: GroupChatModel,
+        //   select: '-__v',
+        //   match: {},
+        // })
+        .exec()
+    );
   }
 
   async update(

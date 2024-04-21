@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { GroupChatsService } from './group-chats.service';
 import { CreateGroupChatDto } from './dto/create-group-chat.dto';
 import { UpdateGroupChatDto } from './dto/update-group-chat.dto';
@@ -17,6 +25,12 @@ export class GroupChatsController {
   @Get()
   findAll() {
     return this.groupChatsService.findAll();
+  }
+
+  @Get('name/:name')
+  findByName(@Param('name') name: string) {
+    console.log(name);
+    return this.groupChatsService.findByName(name);
   }
 
   @Get(':id')
