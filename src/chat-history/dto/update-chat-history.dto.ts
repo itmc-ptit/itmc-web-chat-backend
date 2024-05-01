@@ -1,9 +1,7 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { OmitType } from '@nestjs/mapped-types';
+import { ChatHistory } from '../entities/chat-history.model';
 
-export class UpdateChatHistoryDto {
-    @ApiProperty()
-    message: string;
-
-    @ApiProperty()
-    attachment: string;
-}
+export class UpdateChatHistoryDto extends OmitType(ChatHistory, [
+  'userId',
+  'groupChatId',
+]) {}

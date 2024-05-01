@@ -23,13 +23,8 @@ export class UserToGroupController {
   }
 
   @Post()
-  create(@Body() body: any) {
-    const createUserToGroupDto: CreateUserToGroupDto = {
-      userId: body.user_id,
-      chatId: body.chat_id,
-      role: body.role,
-    };
-    return this.userToGroupService.create(createUserToGroupDto);
+  create(@Body() body: CreateUserToGroupDto) {
+    return this.userToGroupService.create(body);
   }
 
   @Get()
@@ -43,12 +38,8 @@ export class UserToGroupController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() body: any) {
-    const updateUserToGroupDto: UpdateUserToGroupDto = {
-      role: body.role,
-      isBlocked: body.is_blocked,
-    };
-    return this.userToGroupService.update(id, updateUserToGroupDto);
+  update(@Param('id') id: string, @Body() body: UpdateUserToGroupDto) {
+    return this.userToGroupService.update(id, body);
   }
 
   @Delete(':id')

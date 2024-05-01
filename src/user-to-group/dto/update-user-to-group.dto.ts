@@ -1,9 +1,7 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { OmitType } from '@nestjs/mapped-types';
+import { UserToGroup } from '../entities/user-to-group.model';
 
-export class UpdateUserToGroupDto {
-    @ApiProperty()
-    role: string;
-
-    @ApiProperty()
-    isBlocked: boolean;
-}
+export class UpdateUserToGroupDto extends OmitType(UserToGroup, [
+  'userId',
+  'groupChatId',
+]) {}

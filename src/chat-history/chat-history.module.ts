@@ -5,9 +5,13 @@ import { ChatHistorySchema } from './entities/chat-history.model';
 import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: 'chat_histories', schema: ChatHistorySchema }])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: 'chat_histories', schema: ChatHistorySchema },
+    ]),
+  ],
   providers: [ChatHistoryService],
   controllers: [ChatHistoryController],
-  exports: [ChatHistoryService]
+  exports: [ChatHistoryService],
 })
 export class ChatHistoryModule {}

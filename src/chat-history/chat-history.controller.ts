@@ -18,14 +18,8 @@ export class ChatHistoryController {
   constructor(private readonly chatHistoryService: ChatHistoryService) {}
 
   @Post()
-  create(@Body() body: any) {
-    const createChatHistoryDto: CreateChatHistoryDto = {
-      userId: body.userId,
-      groupChatId: body.groupChatId,
-      message: body.message,
-      attachment: body.attachment,
-    };
-    return this.chatHistoryService.create(createChatHistoryDto);
+  create(@Body() body: CreateChatHistoryDto) {
+    return this.chatHistoryService.create(body);
   }
 
   @Get('chat/:groupChatId')

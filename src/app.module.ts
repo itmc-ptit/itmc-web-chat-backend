@@ -1,10 +1,10 @@
 import { Logger, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
-import { UserModule } from './/users/users.module';
+import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { ChatModule } from './chat/chat.module';
-import { GroupChatsModule } from './group-chats/group-chats.module';
+import { GroupChatModule } from './group-chat/group-chat.module';
 import { ChatHistoryModule } from './chat-history/chat-history.module';
 import { ChatBanModule } from './chat-ban/chat-ban.module';
 import { UserToGroupModule } from './user-to-group/user-to-group.module';
@@ -17,7 +17,7 @@ require('dotenv').config();
     UserModule,
     ConfigModule.forRoot(),
     ChatModule,
-    GroupChatsModule,
+    GroupChatModule,
     ChatHistoryModule,
     ChatBanModule,
     UserToGroupModule,

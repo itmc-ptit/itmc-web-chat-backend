@@ -1,15 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ChatHistory } from '../entities/chat-history.model';
 
-export class CreateChatHistoryDto {
-  @ApiProperty()
-  userId: string;
-
-  @ApiProperty()
-  groupChatId: string;
-
-  @ApiProperty()
-  message: string;
-
-  @ApiProperty()
-  attachment: string;
-}
+export class CreateChatHistoryDto extends ChatHistory {}

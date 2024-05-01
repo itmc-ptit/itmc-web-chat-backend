@@ -7,55 +7,51 @@ import {
   Param,
   Delete,
   Headers,
-  Inject,
-  forwardRef,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthService } from 'src/auth/auth.service';
-import exp from 'constants';
+import { JwtUsage } from 'src/helper/jwt.usage';
 
 @Controller('api/v1/users')
 @ApiTags('Users')
 export class UsersController {
   constructor(
-    private readonly usersService: UsersService,
-    @Inject(forwardRef(() => AuthService))
-    private readonly authService: AuthService,
+    private readonly userService: UserService,
+    private readonly jwtUsage: JwtUsage,
   ) {}
 
   @Get('me')
   decodeToken(@Headers('authorization') authorization: string) {
     const token = authorization.split(' ')[1]; // Extract token from Authorization header
-    const decodedToken = this.authService.decodeToken(token);
-    const user = this.usersService.findById(decodedToken.sub);
+    const decodedToken = this.jwtUsage.decodeToken(token);
+    const user = this.userService.findById(decodedToken.sub);
     return user;
   }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    return this.userService.create(createUserDto);
   }
 
   @Get()
   findAll() {
-    return this.usersService.findAll();
+    return this.userService.findAll();
   }
 
   @Get(':id')
   findById(@Param('id') id: string) {
-    return this.usersService.findById(id);
+    return this.userService.findById(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+    return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+    return this.userService.remove(id);
   }
 }

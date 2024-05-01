@@ -1,35 +1,51 @@
+import { IsString } from '@nestjs/class-validator';
+import { PartialType } from '@nestjs/mapped-types';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { IsNotEmpty } from 'class-validator';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { GroupChat } from 'src/group-chat/models/group-chat.model';
+import { BaseEntity } from 'src/helper/base-entity.model';
+import { User } from 'src/user/user.model';
+import { IsValidRole } from 'src/validators/role.validator';
+import { IsValidUserToGroupStatus } from 'src/validators/user-to-group-status.validator';
 
 export type UserToGroupDocument = UserToGroup & Document;
 
 @Schema()
-export class UserToGroup {
+export class UserToGroup extends PartialType(BaseEntity) {
+  @IsString()
+  @IsNotEmpty()
   @Prop({
     required: true,
     type: MongooseSchema.Types.ObjectId,
-    ref: 'User',
+    ref: User.name,
   })
   userId: string;
 
+  @IsString()
+  @IsNotEmpty()
   @Prop({
     required: true,
     type: MongooseSchema.Types.ObjectId,
-    ref: 'GroupChat',
+    ref: GroupChat.name,
   })
-  chatId: string;
+  groupChatId: string;
 
+  @IsValidRole()
   @Prop({ required: true })
   role: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   isBlocked: boolean;
 
-  @Prop({ required: true })
-  joinedAt: Date;
+  @IsValidUserToGroupStatus()
+  @Prop({ required: false })
+  status: string;
 }
 
 export const UserToGroupSchema = SchemaFactory.createForClass(UserToGroup);
 
-// Define compound index for userId and chatId
-UserToGroupSchema.index({ userId: 1, chatId: 1 }, { unique: true });
+UserToGroupSchema.index(
+  { userId: 1, chatId: 1, createAt: 1 },
+  { unique: true },
+);

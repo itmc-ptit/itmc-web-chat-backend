@@ -1,15 +1,7 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Transform } from "class-transformer";
+import { OmitType } from '@nestjs/mapped-types';
+import { UserToGroup } from '../entities/user-to-group.model';
 
-export class CreateUserToGroupDto {
-    // @Transform(({ value }) => value, { toClassOnly: true })
-    @ApiProperty()
-    userId: string;
-    
-    // @Transform(({ value }) => value, { toClassOnly: true })
-    @ApiProperty()
-    chatId: string;
-    
-    @ApiProperty()
-    role: string;
-}
+export class CreateUserToGroupDto extends OmitType(UserToGroup, [
+  'isBlocked',
+  'status',
+]) {}
