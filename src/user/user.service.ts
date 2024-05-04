@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from './entities/user.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import * as argon2 from 'argon2';
 @Injectable()
 export class UserService {
   constructor(
@@ -56,6 +57,7 @@ export class UserService {
       throw new BadRequestException('User not found');
     }
 
+    // * Update the username if changes happened to the first name or last name
     let username: string = user.username;
     if (
       payload.firstName != user.firstName ||
@@ -64,12 +66,22 @@ export class UserService {
       username = await this.getUsername(payload.firstName, payload.lastName);
     }
 
+    let password: string = user.password;
+    const passwordMatches = await argon2.verify(
+      user.password,
+      payload.password,
+    );
+    if (!passwordMatches) {
+      password = await argon2.hash(payload.password);
+    }
+
     return await this.userModel
       .findByIdAndUpdate(
         id,
         {
           ...payload,
           username: username,
+          password: password,
           updatedAt: Date.now(),
         },
         { new: true },
