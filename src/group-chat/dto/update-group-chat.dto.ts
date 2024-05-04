@@ -1,6 +1,4 @@
 import { OmitType } from '@nestjs/mapped-types';
-import { CreateGroupChatDto } from './create-group-chat.dto';
+import { GroupChat } from '../entities/group-chat.model';
 
-export class UpdateGroupChatDto extends OmitType(CreateGroupChatDto, [
-  'hostId',
-]) {}
+export class UpdateGroupChatDto extends OmitType(GroupChat, ['hostId']) {}

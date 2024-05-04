@@ -3,9 +3,9 @@ import { PartialType } from '@nestjs/mapped-types';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsNotEmpty } from 'class-validator';
 import { Document, Schema as MongooseSchema } from 'mongoose';
-import { GroupChat } from 'src/group-chat/models/group-chat.model';
+import { GroupChat } from 'src/group-chat/entities/group-chat.model';
 import { BaseEntity } from 'src/helper/base-entity.model';
-import { User } from 'src/user/user.model';
+import { User } from 'src/user/entities/user.model';
 import { IsValidRole } from 'src/validators/role.validator';
 import { IsValidUserToGroupStatus } from 'src/validators/user-to-group-status.validator';
 
@@ -45,7 +45,4 @@ export class UserToGroup extends PartialType(BaseEntity) {
 
 export const UserToGroupSchema = SchemaFactory.createForClass(UserToGroup);
 
-UserToGroupSchema.index(
-  { userId: 1, chatId: 1, createAt: 1 },
-  { unique: true },
-);
+UserToGroupSchema.index({ userId: 1, chatId: 1 }, { unique: true });

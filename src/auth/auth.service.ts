@@ -6,19 +6,27 @@ import {
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserService } from 'src/user/user.service';
 import * as argon2 from 'argon2';
-import { AuthDto } from './dto/auth.dto';
-import { JwtUsage, Tokens } from 'src/helper/jwt.usage';
+import { UserAuthenticationPayload } from './dto/user-authentication-payload.dto';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './dto/jwt-payload.dto';
+
+export interface Tokens {
+  accessToken: string;
+  refreshToken: string;
+}
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
-    private jwtUsage: JwtUsage,
+    private jwtService: JwtService,
   ) {}
 
-  async userRegistration(createUserDto: CreateUserDto): Promise<any> {
-    const userExists = await this.userService.findByEmail(createUserDto.email);
-    if (userExists) {
+  async register(createUserDto: CreateUserDto) {
+    const existingUser = await this.userService.findByEmail(
+      createUserDto.email,
+    );
+    if (existingUser) {
       throw new BadRequestException('User already exists');
     }
 
@@ -28,61 +36,72 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    const tokens: Tokens = await this.jwtUsage.generateTokens({
+    const tokens: Tokens = await this.generateTokens({
       id: newUser._id,
       email: newUser.email,
     });
-    await this.updateRefreshToken(newUser._id, tokens.refreshToken);
-    return tokens;
+    await this.userService.updateRefreshToken(newUser._id, tokens.refreshToken);
+
+    return {
+      ...newUser.toJSON(),
+      jwt: tokens.accessToken,
+    };
   }
 
-  async userAuthentication(data: AuthDto) {
-    const user = await this.userService.findByEmail(data.email);
+  async validateUser({ email, password }: UserAuthenticationPayload) {
+    const user = await this.userService.findByEmail(email);
     if (!user) {
       throw new UnauthorizedException('User does not exist');
     }
 
-    const passwordMatches = await argon2.verify(user.password, data.password);
+    const passwordMatches = await argon2.verify(user.password, password);
     if (!passwordMatches) {
       throw new UnauthorizedException('Password is incorrect');
     }
 
-    const tokens: Tokens = await this.jwtUsage.generateTokens({
+    const tokens: Tokens = await this.generateTokens({
       id: user._id,
       email: user.email,
     });
-    await this.updateRefreshToken(user._id, tokens.refreshToken);
-    return tokens;
+    await this.userService.updateRefreshToken(user._id, tokens.refreshToken);
+
+    return {
+      ...user.toJSON(),
+      jwt: tokens.accessToken,
+    };
   }
 
-  // ! Logout is not implemented in this project
-  // async logout(userId: string) {
-  //   const user = await this.usersService.findById(userId);
-  //   return this.usersService.update(userId, {
-  //     first_name: (await user).first_name,
-  //     last_name: (await user).last_name,
-  //     gender: (await user).gender,
-  //     dob: (await user).dob,
-  //     refresh_token: null,
-  //     update_at: user.update_at,
-  //     delete_at: user.delete_at,
-  //   });
-  // }
+  async generateTokens(jwtPayload: JwtPayload): Promise<Tokens> {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          sub: jwtPayload.id,
+          email: jwtPayload.email,
+        },
+        {
+          secret: process.env.JWT_ACCESS_SECRET,
+          expiresIn: '15m',
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          sub: jwtPayload.id,
+          email: jwtPayload.email,
+        },
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+          expiresIn: '7d',
+        },
+      ),
+    ]);
+
+    return {
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    };
+  }
 
   hashData(data: string) {
     return argon2.hash(data);
-  }
-
-  async updateRefreshToken(userId: string, refreshToken: string) {
-    const user = await this.userService.findById(userId);
-    if (!user) {
-      throw new UnauthorizedException('User does not exist');
-    }
-
-    const hashedRefreshToken = await this.hashData(refreshToken);
-    await this.userService.update(userId, {
-      ...user,
-      refreshToken: hashedRefreshToken,
-    });
   }
 }

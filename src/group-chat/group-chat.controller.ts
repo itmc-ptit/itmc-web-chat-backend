@@ -6,12 +6,16 @@ import {
   Patch,
   Param,
   Delete,
+  BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { GroupChatService } from './group-chat.service';
 import { CreateGroupChatDto } from './dto/create-group-chat.dto';
 import { UpdateGroupChatDto } from './dto/update-group-chat.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { AccessTokenGuard } from 'src/auth/gurads/access-token-auth.guard';
 
+@UseGuards(AccessTokenGuard)
 @Controller('api/v1/group-chats')
 @ApiTags('Group Chats')
 export class GroupChatController {
@@ -29,13 +33,20 @@ export class GroupChatController {
 
   @Get('name/:name')
   findByName(@Param('name') name: string) {
-    console.log(name);
-    return this.groupChatService.findByName(name);
+    const groupChat = this.groupChatService.findByName(name);
+    if (!groupChat) {
+      throw new BadRequestException('Group chat not found');
+    }
+    return groupChat;
   }
 
   @Get(':id')
   findById(@Param('id') id: string) {
-    return this.groupChatService.findById(id);
+    const groupChat = this.groupChatService.findById(id);
+    if (!groupChat) {
+      throw new BadRequestException('Group chat not found');
+    }
+    return groupChat;
   }
 
   @Patch(':id')

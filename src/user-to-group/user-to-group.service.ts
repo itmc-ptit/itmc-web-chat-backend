@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserToGroupDto } from './dto/create-user-to-group.dto';
 import { UpdateUserToGroupDto } from './dto/update-user-to-group.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -7,17 +7,35 @@ import {
   UserToGroupDocument,
 } from './entities/user-to-group.model';
 import { Model } from 'mongoose';
+import { GroupChatService } from 'src/group-chat/group-chat.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class UserToGroupService {
   constructor(
     @InjectModel(UserToGroup.name)
     private readonly userToGroupModel: Model<UserToGroupDocument>,
+    private readonly groupChatService: GroupChatService,
+    private readonly userService: UserService,
   ) {}
 
   async create(
     createUserToGroupDto: CreateUserToGroupDto,
   ): Promise<UserToGroupDocument> {
+    const targetingUser = await this.userService.findById(
+      createUserToGroupDto.userId,
+    );
+    if (!targetingUser) {
+      throw new BadRequestException('User not found!');
+    }
+
+    const targetingGroupChat = await this.groupChatService.findById(
+      createUserToGroupDto.groupChatId,
+    );
+    if (!targetingGroupChat) {
+      throw new BadRequestException('Group chat not found!');
+    }
+
     return await new this.userToGroupModel({
       ...createUserToGroupDto,
       createAt: new Date(),

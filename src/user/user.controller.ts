@@ -1,55 +1,49 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
   Delete,
-  Headers,
+  BadRequestException,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtUsage } from 'src/helper/jwt.usage';
+import { AccessTokenGuard } from 'src/auth/gurads/access-token-auth.guard';
 
 @Controller('api/v1/users')
 @ApiTags('Users')
 export class UsersController {
-  constructor(
-    private readonly userService: UserService,
-    private readonly jwtUsage: JwtUsage,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
+  @UseGuards(AccessTokenGuard)
   @Get('me')
-  decodeToken(@Headers('authorization') authorization: string) {
-    const token = authorization.split(' ')[1]; // Extract token from Authorization header
-    const decodedToken = this.jwtUsage.decodeToken(token);
-    const user = this.userService.findById(decodedToken.sub);
+  getProfile(@Req() req: any) {
+    const user = this.userService.findById(req.user.sub);
     return user;
   }
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.userService.findAll();
-  }
-
+  @UseGuards(AccessTokenGuard)
   @Get(':id')
   findById(@Param('id') id: string) {
-    return this.userService.findById(id);
+    const user = this.userService.findById(id);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    return user;
   }
 
+  @UseGuards(AccessTokenGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(id, updateUserDto);
   }
 
+  @UseGuards(AccessTokenGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.remove(id);

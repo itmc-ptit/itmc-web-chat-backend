@@ -5,12 +5,13 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
+import { Gender } from 'src/user/entities/gender.enum';
 
 @ValidatorConstraint({ name: 'isValidGender', async: false })
 export class IsValidGenderConstraint implements ValidatorConstraintInterface {
   validate(gender: string, args: ValidationArguments) {
-    const genders = ['male', 'female', 'other'];
-    return genders.includes(gender.toLowerCase());
+    const genders = Object.values(Gender);
+    return genders.includes(gender.toLowerCase() as Gender);
   }
 
   defaultMessage(validationArguments?: ValidationArguments): string {

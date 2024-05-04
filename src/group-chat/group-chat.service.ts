@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateGroupChatDto } from './dto/create-group-chat.dto';
 import { UpdateGroupChatDto } from './dto/update-group-chat.dto';
-import { GroupChat, GroupChatDocument } from './models/group-chat.model';
+import { GroupChat, GroupChatDocument } from './entities/group-chat.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -15,17 +15,16 @@ export class GroupChatService {
   async create(
     createGroupChatDto: CreateGroupChatDto,
   ): Promise<GroupChatDocument> {
-    const groupChat = this.groupChatModel.findOne({
-      name: createGroupChatDto.name,
-      deleteAt: null,
-    });
+    const groupChat = await this.findByName(createGroupChatDto.name);
     if (groupChat) {
-      throw new BadRequestException('Group chat already exists!');
+      throw new BadRequestException('Group chat name already exists!');
     }
 
     return await new this.groupChatModel({
       ...createGroupChatDto,
       createdAt: new Date(),
+      updateAt: new Date(),
+      deleteAt: null,
     }).save();
   }
 
@@ -34,44 +33,33 @@ export class GroupChatService {
   }
 
   async findById(id: string): Promise<GroupChatDocument> {
-    const groupChat = this.groupChatModel.findOne({
+    return await this.groupChatModel.findOne({
       _id: id,
       deleteAt: null,
     });
-    if (!groupChat) {
-      throw new BadRequestException('Group chat not found!');
-    }
-
-    return await groupChat;
   }
 
   async findByName(name: string): Promise<GroupChatDocument> {
-    const groupChat = this.groupChatModel.findOne({
+    return await this.groupChatModel.findOne({
       name: name,
       deleteAt: null,
     });
-    if (!groupChat) {
-      throw new BadRequestException('Group chat not found!');
-    }
-    return await groupChat;
   }
 
   async update(
     id: string,
     updateGroupChatDto: UpdateGroupChatDto,
   ): Promise<GroupChatDocument> {
-    const groupChat = this.findById(id);
-    if (!groupChat) {
+    const existingGroupChatById = await this.findById(id);
+    if (!existingGroupChatById) {
       throw new BadRequestException('Group chat not found!');
     }
 
-    if (
-      this.groupChatModel.findOne({
-        name: updateGroupChatDto.name,
-        deleteAt: null,
-      })
-    ) {
-      throw new BadRequestException('Group chat already exists!');
+    const existingGroupChatByName = await this.findByName(
+      updateGroupChatDto.name,
+    );
+    if (existingGroupChatByName) {
+      throw new BadRequestException('Group chat name already exists!');
     }
 
     return await this.groupChatModel
@@ -93,9 +81,13 @@ export class GroupChatService {
     }
 
     return await this.groupChatModel
-      .findByIdAndUpdate(id, {
-        deleteAt: new Date(),
-      })
+      .findByIdAndUpdate(
+        id,
+        {
+          deleteAt: new Date(),
+        },
+        { new: true },
+      )
       .exec();
   }
 }

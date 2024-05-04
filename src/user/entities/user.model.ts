@@ -5,6 +5,7 @@ import { Expose } from 'class-transformer';
 import { Document } from 'mongoose';
 import { BaseEntity } from 'src/helper/base-entity.model';
 import { IsValidGender } from 'src/validators/gender.validator';
+import { Gender } from './gender.enum';
 
 export type UserDocument = User & Document;
 
@@ -36,17 +37,16 @@ export class User extends PartialType(BaseEntity) {
   @Prop({ required: false, unique: true, default: null })
   username: string;
 
-  @IsString()
   @IsNotEmpty()
   @IsValidGender()
   @Prop({ required: true })
-  gender: string;
+  gender: Gender;
 
   @IsDate()
   @IsNotEmpty()
   @Prop({ required: true })
   @Expose({ name: 'date_of_birth' })
-  dob: Date;
+  dateOfBirth: Date;
 
   @IsString()
   @Prop({ required: false })

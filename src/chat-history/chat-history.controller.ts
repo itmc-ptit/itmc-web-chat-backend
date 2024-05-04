@@ -6,12 +6,16 @@ import {
   Patch,
   Param,
   Delete,
+  BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { ChatHistoryService } from './chat-history.service';
 import { CreateChatHistoryDto } from './dto/create-chat-history.dto';
 import { UpdateChatHistoryDto } from './dto/update-chat-history.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { AccessTokenGuard } from 'src/auth/gurads/access-token-auth.guard';
 
+@UseGuards(AccessTokenGuard)
 @Controller('api/v1/chat-histories')
 @ApiTags('Chat Histories')
 export class ChatHistoryController {
@@ -34,16 +38,17 @@ export class ChatHistoryController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.chatHistoryService.findById(id);
+    const chatHistory = this.chatHistoryService.findById(id);
+    if (!chatHistory) {
+      throw new BadRequestException('Chat history not found');
+    }
+
+    return chatHistory;
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() body: any) {
-    const updateChatHistoryDto: UpdateChatHistoryDto = {
-      message: body.message,
-      attachment: body.attachment,
-    };
-    return this.chatHistoryService.update(id, updateChatHistoryDto);
+  update(@Param('id') id: string, @Body() body: UpdateChatHistoryDto) {
+    return this.chatHistoryService.update(id, body);
   }
 
   @Delete(':id')

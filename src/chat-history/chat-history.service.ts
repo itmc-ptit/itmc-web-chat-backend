@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateChatHistoryDto } from './dto/create-chat-history.dto';
 import { UpdateChatHistoryDto } from './dto/update-chat-history.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -28,13 +28,6 @@ export class ChatHistoryService {
   }
 
   async findById(id: string) {
-    const ChatHistory = await this.chatHistoryModel
-      .findOne({ _id: id, deleteAt: null })
-      .exec();
-    if (!ChatHistory) {
-      throw new Error('Chat history not found');
-    }
-
     return await this.chatHistoryModel
       .findById({ _id: id, deleteAt: null })
       .exec();
@@ -49,7 +42,7 @@ export class ChatHistoryService {
   async update(id: string, updateChatHistoryDto: UpdateChatHistoryDto) {
     const chatHistory = await this.findById(id);
     if (!chatHistory) {
-      throw new Error('Chat history not found');
+      throw new BadRequestException('Chat history not found');
     }
 
     return this.chatHistoryModel
@@ -67,7 +60,7 @@ export class ChatHistoryService {
   async remove(id: string) {
     const chatHistory = await this.findById(id);
     if (!chatHistory) {
-      throw new Error('Chat history not found');
+      throw new BadRequestException('Chat history not found');
     }
 
     return await this.chatHistoryModel

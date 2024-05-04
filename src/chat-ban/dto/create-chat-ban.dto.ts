@@ -1,15 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { OmitType } from '@nestjs/mapped-types';
+import { ChatBan } from '../entities/chat-ban.model';
 
-export class CreateChatBanDto {
-    @ApiProperty()
-    userId: string;
-
-    @ApiProperty()
-    charId: string;
-
-    @ApiProperty()
-    bannedBy: string;
-
-    @ApiProperty()
-    banReason: string;
-}
+export class CreateChatBanDto extends OmitType(ChatBan, ['endAt']) {}

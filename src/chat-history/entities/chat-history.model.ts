@@ -2,9 +2,9 @@ import { PartialType } from '@nestjs/mapped-types';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { Document, Schema as MongooseSchema } from 'mongoose';
-import { GroupChat } from 'src/group-chat/models/group-chat.model';
+import { GroupChat } from 'src/group-chat/entities/group-chat.model';
 import { BaseEntity } from 'src/helper/base-entity.model';
-import { User } from 'src/user/user.model';
+import { User } from 'src/user/entities/user.model';
 
 export type ChatHistoryDocument = ChatHistory & Document;
 
@@ -45,6 +45,7 @@ ChatHistorySchema.index(
   {
     userId: 1,
     groupChatId: 1,
+    createdAt: 1,
   },
   { unique: true },
 );
