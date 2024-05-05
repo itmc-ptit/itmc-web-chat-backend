@@ -1,33 +1,30 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { InvitationStatus } from './invitation-status.enum';
 
-export enum InvitationStatus {
-  ACCEPTED = 'ACCEPTED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  REJECTED = 'REJECTED',
-}
+export type GroupInvitationDocument = GroupInvitation & Document;
 
-@Schema({ timestamps: true })
-export class GroupInvitation extends Document {
-  @Prop({ required: true })
+@Schema()
+export class GroupInvitation {
+  @Prop({ type: String, required: true, ref: 'GroupChat' })
   group_id: string;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true, ref: 'User' })
   inviter_id: string;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true, ref: 'User' })
   invitee_id: string;
 
-  @Prop({ enum: Object.values(InvitationStatus), default: InvitationStatus.IN_PROGRESS })
-  status: string;
+  @Prop({ type: String, enum: Object.values(InvitationStatus), default: InvitationStatus.IN_PROGRESS })
+  status: InvitationStatus;
 
-  @Prop({ default: Date.now })
+  @Prop({ type: Date, default: Date.now })
   created_at: Date;
 
-  @Prop({ default: Date.now })
+  @Prop({ type: Date, default: Date.now })
   updated_at: Date;
 
-  @Prop()
+  @Prop({ type: Date, default: null })
   deleted_at: Date;
 }
 

@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { GroupInvitationService } from './group-invitation.service';
-import { InvitationStatus  } from './group-invitation.model';
+import { InvitationStatus  } from './invitation-status.enum';
 
 
 @Controller('group-invitation')

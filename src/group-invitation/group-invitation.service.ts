@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { GroupInvitation, InvitationStatus  } from './group-invitation.model';
+import { GroupInvitationDocument } from './group-invitation.model';
+import { InvitationStatus  } from './invitation-status.enum';
 
 @Injectable()
 export class GroupInvitationService {
   constructor(
-    @InjectModel('GroupInvitation') private readonly groupInvitationModel: Model<GroupInvitation>
+    @InjectModel('GroupInvitation') private readonly groupInvitationModel: Model<GroupInvitationDocument>
   ) {}
 
-  async create(group_id: string, inviter_id: string, invitee_id: string): Promise<GroupInvitation> {
+  async create(group_id: string, inviter_id: string, invitee_id: string): Promise<GroupInvitationDocument> {
     const newInvitation = new this.groupInvitationModel({
       group_id,
       inviter_id,
@@ -23,15 +24,15 @@ export class GroupInvitationService {
     return newInvitation.save();
   }
 
-  async findAll(): Promise<GroupInvitation[]> {
+  async findAll(): Promise<GroupInvitationDocument[]> {
     return this.groupInvitationModel.find().exec();
   }
 
-  async findOne(id: string): Promise<GroupInvitation> {
+  async findOne(id: string): Promise<GroupInvitationDocument> {
     return this.groupInvitationModel.findById(id).exec();
   }
 
-  async updateStatus(id: string, status: InvitationStatus): Promise<GroupInvitation> {
+  async updateStatus(id: string, status: InvitationStatus): Promise<GroupInvitationDocument> {
     const invitation = await this.groupInvitationModel.findById(id).exec();
   
     invitation.status = status;
@@ -40,7 +41,7 @@ export class GroupInvitationService {
     return invitation.save();
   }
 
-  async remove(id: string): Promise<GroupInvitation> {
+  async remove(id: string): Promise<GroupInvitationDocument> {
     const invitation = await this.groupInvitationModel.findById(id).exec();
     
     invitation.deleted_at = new Date();
