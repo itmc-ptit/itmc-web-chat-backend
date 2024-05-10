@@ -5,6 +5,9 @@ import { User, UserDocument } from './entities/user.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as argon2 from 'argon2';
+import * as jwt from 'jsonwebtoken';
+import { JwtPayload } from 'src/auth/dto/jwt-payload.dto';
+
 @Injectable()
 export class UserService {
   constructor(
@@ -51,8 +54,20 @@ export class UserService {
     return await this.userModel.findOne({ email: email, deleteAt: null });
   }
 
-  async update(id: string, payload: UpdateUserDto): Promise<UserDocument> {
-    const user = await this.findById(id);
+  async update(token: string, payload: UpdateUserDto): Promise<UserDocument> {
+    const requestedUserId = payload.id;
+    if (!requestedUserId) {
+      throw new BadRequestException('User ID is required');
+    }
+
+    // ? Why the claim should be {id, email} but received {sub, email}?
+    const claim = await this.extractToken(token);
+    console.log(claim);
+    if (claim.sub != requestedUserId) {
+      throw new BadRequestException('Unauthorized');
+    }
+
+    const user = await this.findById(requestedUserId);
     if (!user) {
       throw new BadRequestException('User not found');
     }
@@ -77,7 +92,7 @@ export class UserService {
 
     return await this.userModel
       .findByIdAndUpdate(
-        id,
+        requestedUserId,
         {
           ...payload,
           username: username,
@@ -134,5 +149,14 @@ export class UserService {
       .replace(' ', '-')
       .concat(lastName.toLowerCase().trim().replace(' ', '-'))
       .concat(Date.now().toString());
+  }
+
+  private async extractToken(token: string) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+      return decoded;
+    } catch (err) {
+      return err;
+    }
   }
 }

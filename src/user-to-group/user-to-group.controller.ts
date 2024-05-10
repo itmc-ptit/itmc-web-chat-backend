@@ -31,11 +31,6 @@ export class UserToGroupController {
     return this.userToGroupService.create(body);
   }
 
-  @Get()
-  findAll() {
-    return this.userToGroupService.findAll();
-  }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     const usertoGroup = this.userToGroupService.findById(id);
