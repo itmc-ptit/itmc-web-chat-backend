@@ -18,10 +18,15 @@ import { AccessTokenGuard } from 'src/auth/gurads/access-token-auth.guard';
 /**
  * Group Chat Controller
  *
+ * New features:
+ * - Introduct new field: creator_id to store the user id of the user who created the group chat. The creator_id is different from the host_id. The creator_id is the user who created the group chat while the host_id is the user who host the group chat. The host_id is the user who is responsible for the group chat. The host_id can be changed, but the creator_id cannot be changed. The host_id can update the group chat, but the creator_id might not be able to do.
+ *
  * Current bugs:
  * - The update API allow for updating the group chat even though the claim from access token does not match with the host id. Only the user match the host id is allowed to update the group chat.
+ * - The get all group chat API should not allow for finding all group chats. It should only allow for finding group chats that the user is a member of.
  *
- * TODO: Fix the bug by adding a guard to check if the user match the host id before updating the group chat.
+ * TODO: Add the logic to verify the api sender is the valid host or not.
+ * TODO: Implement the creator_id login to the API service.
  */
 @UseGuards(AccessTokenGuard)
 @Controller('api/v1/group-chats')
