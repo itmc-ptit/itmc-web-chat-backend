@@ -24,9 +24,12 @@ import { AccessTokenGuard } from 'src/auth/gurads/access-token-auth.guard';
  * Current bugs:
  * - The update API allow for updating the group chat even though the claim from access token does not match with the host id. Only the user match the host id is allowed to update the group chat.
  * - The get all group chat API should not allow for finding all group chats. It should only allow for finding group chats that the user is a member of.
+ * - When creating a new group chat, the sender obviously the host, and also the creator. The creator_id should be the same as the host_id. Both host_id and creator_id should be taken from the token claim.
  *
  * TODO: Add the logic to verify the api sender is the valid host or not.
- * TODO: Implement the creator_id login to the API service.
+ * TODO: Implement the creator_id logic to the API service.
+ * TODO: update the ERD to reflect the new changes.
+ * TODO: Add the claim extraction logic to get the host_id and creator_id from the access token.
  */
 @UseGuards(AccessTokenGuard)
 @Controller('api/v1/group-chats')
@@ -64,10 +67,7 @@ export class GroupChatController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() body: UpdateGroupChatDto) {
-    return this.groupChatService.update(id, {
-      ...body,
-      updateAt: new Date(),
-    });
+    return this.groupChatService.update(id, body);
   }
 
   @Delete(':id')

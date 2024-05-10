@@ -62,8 +62,8 @@ export class GroupChatService {
       throw new BadRequestException('Group chat name already exists!');
     }
 
-    if ('hostId' in updateGroupChatDto) {
-      throw new BadRequestException('Host id cannot be updated!');
+    if ('creatorId' in updateGroupChatDto) {
+      throw new BadRequestException('Creator id cannot be updated!');
     }
 
     return await this.groupChatModel
