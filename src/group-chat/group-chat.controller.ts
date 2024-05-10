@@ -15,6 +15,14 @@ import { UpdateGroupChatDto } from './dto/update-group-chat.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AccessTokenGuard } from 'src/auth/gurads/access-token-auth.guard';
 
+/**
+ * Group Chat Controller
+ *
+ * Current bugs:
+ * - The update API allow for updating the group chat even though the claim from access token does not match with the host id. Only the user match the host id is allowed to update the group chat.
+ *
+ * TODO: Fix the bug by adding a guard to check if the user match the host id before updating the group chat.
+ */
 @UseGuards(AccessTokenGuard)
 @Controller('api/v1/group-chats')
 @ApiTags('Group Chats')

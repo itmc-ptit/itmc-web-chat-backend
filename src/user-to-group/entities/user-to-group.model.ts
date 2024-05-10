@@ -12,7 +12,7 @@ import { IsValidUserToGroupStatus } from 'src/validators/user-to-group-status.va
 export type UserToGroupDocument = UserToGroup & Document;
 
 @Schema()
-export class UserToGroup extends PartialType(BaseEntity) {
+export class UserToGroup extends BaseEntity {
   @IsString()
   @IsNotEmpty()
   @Prop({

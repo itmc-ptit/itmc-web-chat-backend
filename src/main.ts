@@ -1,7 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import { WsAdapter } from '@nestjs/platform-ws';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
@@ -14,11 +12,11 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-  .addApiKey()
-  .setTitle('ITMC Chat App API document')
-  .setDescription('This is ITMC Chat App API description')
-  .setVersion('1.0')
-  .build();
+    .addApiKey()
+    .setTitle('ITMC Chat App API document')
+    .setDescription('This is ITMC Chat App API description')
+    .setVersion('1.0')
+    .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-document', app, document, {
@@ -30,8 +28,8 @@ async function bootstrap() {
     },
   });
 
-
   const configService: ConfigService = app.get(ConfigService);
-  const port: number = configService.get<number>('PORT') || 8080;
-  await app.listen(port, () => console.log(`Listening on port ${port}`));}
+  const port: number = +process.env.SERVER_PORT;
+  await app.listen(port, () => console.log(`Listening on port ${port}`));
+}
 bootstrap();

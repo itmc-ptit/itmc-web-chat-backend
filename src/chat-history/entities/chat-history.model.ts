@@ -9,7 +9,7 @@ import { User } from 'src/user/entities/user.model';
 export type ChatHistoryDocument = ChatHistory & Document;
 
 @Schema()
-export class ChatHistory extends PartialType(BaseEntity) {
+export class ChatHistory extends BaseEntity {
   @IsString()
   @IsNotEmpty()
   @Prop({

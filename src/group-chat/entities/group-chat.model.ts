@@ -8,7 +8,7 @@ import { BaseEntity } from 'src/helper/base-entity.model';
 export type GroupChatDocument = GroupChat & Document;
 
 @Schema()
-export class GroupChat extends PartialType(BaseEntity) {
+export class GroupChat extends BaseEntity {
   @IsString()
   @IsNotEmpty()
   @Prop({ required: true, unique: true })

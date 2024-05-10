@@ -10,7 +10,7 @@ import { User } from 'src/user/entities/user.model';
 export type ChatBanDocument = ChatBan & Document;
 
 @Schema()
-export class ChatBan extends PartialType(BaseEntity) {
+export class ChatBan extends BaseEntity {
   @IsString()
   @IsNotEmpty()
   @Prop({

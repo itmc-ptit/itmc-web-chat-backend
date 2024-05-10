@@ -3,6 +3,7 @@ import { Subject } from 'rxjs';
 import { MessagePayLoad } from './dto/message.payload.dto';
 import { JoinRoomPayload } from './dto/join-room.payload.dto';
 import { ChatHistoryService } from 'src/chat-history/chat-history.service';
+import { CreateChatHistoryDto } from 'src/chat-history/dto/create-chat-history.dto';
 
 @Injectable()
 export class ChatService {
