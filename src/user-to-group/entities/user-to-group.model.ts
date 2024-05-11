@@ -1,13 +1,14 @@
 import { IsString } from '@nestjs/class-validator';
-import { PartialType } from '@nestjs/mapped-types';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsNotEmpty } from 'class-validator';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { GroupChat } from 'src/group-chat/entities/group-chat.model';
 import { BaseEntity } from 'src/helper/base-entity.model';
 import { User } from 'src/user/entities/user.model';
-import { IsValidRole } from 'src/validators/role.validator';
-import { IsValidUserToGroupStatus } from 'src/validators/user-to-group-status.validator';
+import { IsValidRole } from '../validator/role.validator';
+import { IsValidUserToGroupStatus } from '../validator/user-to-group-status.validator';
+import { MemberStatus } from './member-status.enum';
+import { MemberRole } from './member-role.enum';
 
 export type UserToGroupDocument = UserToGroup & Document;
 
@@ -33,14 +34,14 @@ export class UserToGroup extends BaseEntity {
 
   @IsValidRole()
   @Prop({ required: true })
-  role: string;
+  role: MemberRole;
 
   @Prop({ required: false })
   isBlocked: boolean;
 
   @IsValidUserToGroupStatus()
   @Prop({ required: false })
-  status: string;
+  status: MemberStatus;
 }
 
 export const UserToGroupSchema = SchemaFactory.createForClass(UserToGroup);

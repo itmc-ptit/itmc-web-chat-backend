@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateUserToGroupDto } from './dto/create-user-to-group.dto';
 import { UpdateUserToGroupDto } from './dto/update-user-to-group.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -9,35 +9,35 @@ import {
 import { Model } from 'mongoose';
 import { GroupChatService } from 'src/group-chat/group-chat.service';
 import { UserService } from 'src/user/user.service';
+import { UserDocument } from 'src/user/entities/user.model';
+import { GroupChatDocument } from 'src/group-chat/entities/group-chat.model';
 
 @Injectable()
 export class UserToGroupService {
   constructor(
     @InjectModel(UserToGroup.name)
     private readonly userToGroupModel: Model<UserToGroupDocument>,
+    @Inject(() => GroupChatService)
     private readonly groupChatService: GroupChatService,
     private readonly userService: UserService,
   ) {}
 
-  async create(
-    createUserToGroupDto: CreateUserToGroupDto,
-  ): Promise<UserToGroupDocument> {
-    const targetingUser = await this.userService.findById(
-      createUserToGroupDto.userId,
+  async create(payload: CreateUserToGroupDto): Promise<UserToGroupDocument> {
+    const targetingUser: UserDocument = await this.userService.findById(
+      payload.userId,
     );
     if (!targetingUser) {
       throw new BadRequestException('User not found!');
     }
 
-    const targetingGroupChat = await this.groupChatService.findById(
-      createUserToGroupDto.groupChatId,
-    );
+    const targetingGroupChat: GroupChatDocument =
+      await this.groupChatService.findById(payload.groupChatId);
     if (!targetingGroupChat) {
       throw new BadRequestException('Group chat not found!');
     }
 
     return await new this.userToGroupModel({
-      ...createUserToGroupDto,
+      ...payload,
       createAt: new Date(),
       isBlocked: false,
     }).save();
@@ -60,7 +60,7 @@ export class UserToGroupService {
       .exec();
   }
 
-  async findByUserId(userId: string): Promise<UserToGroupDocument[]> {
+  async findAllByUserId(userId: string): Promise<UserToGroupDocument[]> {
     return await this.userToGroupModel
       .find({
         userId: userId,
@@ -70,15 +70,25 @@ export class UserToGroupService {
       .exec();
   }
 
+  async findAllByGroupId(groupId: string): Promise<UserToGroupDocument[]> {
+    return await this.userToGroupModel
+      .find({
+        groupChatId: groupId,
+        deleteAt: null,
+      })
+      .populate('userId')
+      .exec();
+  }
+
   async update(
     id: string,
-    updateUserToGroupDto: UpdateUserToGroupDto,
+    payload: UpdateUserToGroupDto,
   ): Promise<UserToGroupDocument> {
     return this.userToGroupModel
       .findByIdAndUpdate(
         id,
         {
-          ...updateUserToGroupDto,
+          ...payload,
           updateAt: new Date(),
         },
         { new: true },

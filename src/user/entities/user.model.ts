@@ -3,7 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Expose } from 'class-transformer';
 import { Document } from 'mongoose';
 import { BaseEntity } from 'src/helper/base-entity.model';
-import { IsValidGender } from 'src/validators/gender.validator';
+import { IsValidGender } from 'src/user/validator/gender.validator';
 import { Gender } from './gender.enum';
 
 export type UserDocument = User & Document;

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { UserToGroupService } from './user-to-group.service';
 import { UserToGroupController } from './user-to-group.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -8,6 +8,7 @@ import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
+    forwardRef(() => GroupChatModule),
     MongooseModule.forFeature([
       {
         name: UserToGroup.name,
@@ -15,11 +16,10 @@ import { UserModule } from 'src/user/user.module';
         collection: 'user_to_groups',
       },
     ]),
-    GroupChatModule,
     UserModule,
   ],
-  controllers: [UserToGroupController],
-  providers: [UserToGroupService],
   exports: [UserToGroupService],
+  providers: [UserToGroupService],
+  controllers: [UserToGroupController],
 })
 export class UserToGroupModule {}

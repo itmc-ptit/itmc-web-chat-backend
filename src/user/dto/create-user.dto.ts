@@ -1,6 +1,6 @@
 import { IsDate, IsEmail, IsNotEmpty, IsString } from '@nestjs/class-validator';
 import { Expose } from 'class-transformer';
-import { IsValidGender } from 'src/validators/gender.validator';
+import { IsValidGender } from 'src/user/validator/gender.validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {

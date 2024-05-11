@@ -5,14 +5,15 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
+import { MemberStatus } from '../entities/member-status.enum';
 
 @ValidatorConstraint({ name: 'IsValidUserToGroupStatus', async: false })
 export class IsValidUserToGroupStatusConstraint
   implements ValidatorConstraintInterface
 {
   validate(status: string, validationArguments?: ValidationArguments): boolean {
-    const statusList = ['online', 'away'];
-    return statusList.includes(status);
+    const statusList = Object.values(MemberStatus);
+    return statusList.includes(status.toLowerCase() as MemberStatus);
   }
 
   defaultMessage(validationArguments?: ValidationArguments): string {

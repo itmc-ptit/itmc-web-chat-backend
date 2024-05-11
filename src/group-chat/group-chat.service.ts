@@ -1,19 +1,27 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   UnauthorizedException,
+  forwardRef,
 } from '@nestjs/common';
 import { CreateGroupChatDto } from './dto/create-group-chat.dto';
 import { UpdateGroupChatDto } from './dto/update-group-chat.dto';
 import { GroupChat, GroupChatDocument } from './entities/group-chat.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { UserToGroupService } from 'src/user-to-group/user-to-group.service';
+import { MemberRole } from 'src/user-to-group/entities/member-role.enum';
+import { MemberStatus } from 'src/user-to-group/entities/member-status.enum';
+import { CreateUserToGroupDto } from 'src/user-to-group/dto/create-user-to-group.dto';
 
 @Injectable()
 export class GroupChatService {
   constructor(
     @InjectModel(GroupChat.name)
     private readonly groupChatModel: Model<GroupChatDocument>,
+    @Inject(forwardRef(() => UserToGroupService))
+    private readonly userToGroupService: UserToGroupService,
   ) {}
 
   async create(payload: CreateGroupChatDto): Promise<GroupChatDocument> {
@@ -22,14 +30,27 @@ export class GroupChatService {
       throw new BadRequestException('Group chat name already exists!');
     }
 
-    const groupChat: Partial<GroupChatDocument> = {
+    const groupChatDocument: Partial<GroupChatDocument> = {
       ...payload,
       createAt: new Date(),
       updateAt: new Date(),
       deleteAt: null,
     };
 
-    return await new this.groupChatModel(groupChat).save();
+    const createdGroupChat: GroupChatDocument = await new this.groupChatModel(
+      groupChatDocument,
+    ).save();
+
+    const createUserToGroupPayload: CreateUserToGroupDto = {
+      userId: payload.hostId,
+      groupChatId: createdGroupChat._id,
+      role: MemberRole.Host,
+      status: MemberStatus.Active,
+    };
+
+    await this.userToGroupService.create(createUserToGroupPayload);
+
+    return createdGroupChat;
   }
 
   async findAllByHostId(hostId: string): Promise<GroupChatDocument[]> {

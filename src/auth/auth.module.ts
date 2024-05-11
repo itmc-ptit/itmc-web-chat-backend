@@ -19,13 +19,13 @@ import { LocalStrategy } from './strategies/local.strategy';
       }),
     }),
   ],
-  controllers: [AuthController],
+  exports: [AuthService, JwtModule],
   providers: [
     AuthService,
     AccessTokenStrategy,
     RefreshTokenStrategy,
     LocalStrategy,
   ],
-  exports: [AuthService, JwtModule],
+  controllers: [AuthController],
 })
 export class AuthModule {}

@@ -15,24 +15,29 @@ import { UpdateUserToGroupDto } from './dto/update-user-to-group.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AccessTokenGuard } from 'src/auth/gurads/access-token-auth.guard';
 
+@ApiTags('User To Groups')
 @UseGuards(AccessTokenGuard)
 @Controller('api/v1/user-to-groups')
-@ApiTags('User To Groups')
 export class UserToGroupController {
   constructor(private readonly userToGroupService: UserToGroupService) {}
 
   @Get('groups/:userId')
-  findByUserId(@Param('userId') userId: string) {
-    return this.userToGroupService.findByUserId(userId);
+  findAllByUserId(@Param('userId') userId: string) {
+    return this.userToGroupService.findAllByUserId(userId);
+  }
+
+  @Get('users/:groupId')
+  findAllByGroupId(@Param('groupId') groupId: string) {
+    return this.userToGroupService.findAllByGroupId(groupId);
   }
 
   @Post()
-  create(@Body() body: CreateUserToGroupDto) {
-    return this.userToGroupService.create(body);
+  create(@Body() payload: CreateUserToGroupDto) {
+    return this.userToGroupService.create(payload);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findbyId(@Param('id') id: string) {
     const usertoGroup = this.userToGroupService.findById(id);
     if (!usertoGroup) {
       throw new BadRequestException('User to Group not found');
@@ -41,8 +46,8 @@ export class UserToGroupController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() body: UpdateUserToGroupDto) {
-    return this.userToGroupService.update(id, body);
+  update(@Param('id') id: string, @Body() payload: UpdateUserToGroupDto) {
+    return this.userToGroupService.update(id, payload);
   }
 
   @Delete(':id')

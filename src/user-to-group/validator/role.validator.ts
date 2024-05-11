@@ -5,12 +5,13 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
+import { MemberRole } from '../entities/member-role.enum';
 
 @ValidatorConstraint({ name: 'isValidRole', async: false })
 export class IsValidRoleConstraint implements ValidatorConstraintInterface {
   validate(role: string, validationArguments?: ValidationArguments): boolean {
-    const roles = ['admin', 'member'];
-    return roles.includes(role);
+    const roles = Object.values(MemberRole);
+    return roles.includes(role.toLowerCase() as MemberRole);
   }
 
   defaultMessage(validationArguments?: ValidationArguments): string {

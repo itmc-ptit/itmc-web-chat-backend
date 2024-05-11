@@ -1,7 +1,41 @@
-import { OmitType } from '@nestjs/mapped-types';
-import { UserToGroup } from '../entities/user-to-group.model';
+import { IsString } from '@nestjs/class-validator';
+import { IsNotEmpty } from 'class-validator';
+import { IsValidRole } from '../validator/role.validator';
+import { IsValidUserToGroupStatus } from '../validator/user-to-group-status.validator';
+import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateUserToGroupDto extends OmitType(UserToGroup, [
-  'isBlocked',
-  'status',
-]) {}
+export class CreateUserToGroupDto {
+  @ApiProperty({
+    type: String,
+    description: 'The id of the user',
+  })
+  @IsString()
+  @IsNotEmpty()
+  userId: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'The id of the group chat',
+  })
+  @IsString()
+  @IsNotEmpty()
+  groupChatId: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'The role of the user in the group chat',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @IsValidRole()
+  role: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'The status of the user in the group chat',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @IsValidUserToGroupStatus()
+  status: string;
+}
