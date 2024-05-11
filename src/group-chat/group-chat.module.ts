@@ -7,7 +7,7 @@ import { UserToGroupModule } from 'src/user-to-group/user-to-group.module';
 
 @Module({
   imports: [
-    forwardRef(() => UserToGroupModule),
+    // forwardRef(() => UserToGroupModule),
     MongooseModule.forFeature([
       {
         name: GroupChat.name,

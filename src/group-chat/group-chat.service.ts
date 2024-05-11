@@ -1,27 +1,26 @@
 import {
   BadRequestException,
-  Inject,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
-  forwardRef,
 } from '@nestjs/common';
 import { CreateGroupChatDto } from './dto/create-group-chat.dto';
 import { UpdateGroupChatDto } from './dto/update-group-chat.dto';
 import { GroupChat, GroupChatDocument } from './entities/group-chat.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { UserToGroupService } from 'src/user-to-group/user-to-group.service';
 import { MemberRole } from 'src/user-to-group/entities/member-role.enum';
 import { MemberStatus } from 'src/user-to-group/entities/member-status.enum';
 import { CreateUserToGroupDto } from 'src/user-to-group/dto/create-user-to-group.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UserToGroupEvent } from 'src/user-to-group/user-to-group.service';
 
 @Injectable()
 export class GroupChatService {
   constructor(
     @InjectModel(GroupChat.name)
     private readonly groupChatModel: Model<GroupChatDocument>,
-    @Inject(forwardRef(() => UserToGroupService))
-    private readonly userToGroupService: UserToGroupService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async create(payload: CreateGroupChatDto): Promise<GroupChatDocument> {
@@ -48,7 +47,16 @@ export class GroupChatService {
       status: MemberStatus.Active,
     };
 
-    await this.userToGroupService.create(createUserToGroupPayload);
+    // TODO: figure out how to use the enum user to group event to remove the string literal
+    const createdUserToGroup = await this.eventEmitter.emitAsync(
+      'user.creating',
+      createUserToGroupPayload,
+    );
+    if (!createdUserToGroup) {
+      throw new InternalServerErrorException(
+        'Failed to add host to group chat!',
+      );
+    }
 
     return createdGroupChat;
   }

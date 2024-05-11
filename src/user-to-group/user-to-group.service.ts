@@ -11,17 +11,22 @@ import { GroupChatService } from 'src/group-chat/group-chat.service';
 import { UserService } from 'src/user/user.service';
 import { UserDocument } from 'src/user/entities/user.model';
 import { GroupChatDocument } from 'src/group-chat/entities/group-chat.model';
+import { OnEvent } from '@nestjs/event-emitter';
+
+export enum UserToGroupEvent {
+  CREATING = 'user.creating',
+}
 
 @Injectable()
 export class UserToGroupService {
   constructor(
     @InjectModel(UserToGroup.name)
     private readonly userToGroupModel: Model<UserToGroupDocument>,
-    @Inject(() => GroupChatService)
     private readonly groupChatService: GroupChatService,
     private readonly userService: UserService,
   ) {}
 
+  @OnEvent(UserToGroupEvent.CREATING)
   async create(payload: CreateUserToGroupDto): Promise<UserToGroupDocument> {
     const targetingUser: UserDocument = await this.userService.findById(
       payload.userId,
