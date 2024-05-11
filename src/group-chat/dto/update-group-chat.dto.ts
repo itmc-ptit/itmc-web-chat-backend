@@ -6,19 +6,11 @@ import { UUID } from 'sequelize';
 export class UpdateGroupChatDto {
   @ApiProperty({
     type: String,
-    description: 'The group chat id',
+    description: 'The updating group chat id',
   })
   @IsNotEmpty()
   @IsString()
   id: string;
-
-  @ApiProperty({
-    type: String,
-    description: 'The group chat id',
-  })
-  @IsNotEmpty()
-  @IsString()
-  groupChatId: string;
 
   @ApiProperty({
     type: String,

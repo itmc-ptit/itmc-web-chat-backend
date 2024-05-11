@@ -9,20 +9,29 @@ export type BaseEntityDocument = BaseEntity & Document;
 export class BaseEntity {
   @ApiProperty()
   @IsDate()
-  @Prop({ required: false, default: null })
   @Expose({ name: 'create_at' })
+  @Prop({
+    required: false,
+    default: null,
+  })
   createAt: Date;
 
   @ApiProperty()
   @IsDate()
-  @Prop({ required: false, default: new Date() })
   @Expose({ name: 'update_at' })
+  @Prop({
+    required: false,
+    default: new Date(),
+  })
   updateAt: Date;
 
   @ApiProperty()
   @IsDate()
-  @Prop({ required: false, default: null })
   @Expose({ name: 'delete_at' })
+  @Prop({
+    required: false,
+    default: null,
+  })
   deleteAt: Date;
 }
 
