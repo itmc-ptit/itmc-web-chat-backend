@@ -5,8 +5,8 @@ import { User, UserDocument } from './entities/user.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as argon2 from 'argon2';
-import * as jwt from 'jsonwebtoken';
-import { JwtPayload } from 'src/auth/dto/jwt-payload.dto';
+import { RemoveUserDto } from './dto/remove-user.dto';
+import { toGender } from './entities/gender.enum';
 
 @Injectable()
 export class UserService {
@@ -54,53 +54,55 @@ export class UserService {
     return await this.userModel.findOne({ email: email, deleteAt: null });
   }
 
-  async update(token: string, payload: UpdateUserDto): Promise<UserDocument> {
-    const requestedUserId = payload.id;
-    if (!requestedUserId) {
-      throw new BadRequestException('User ID is required');
+  async update(userId: string, payload: UpdateUserDto): Promise<UserDocument> {
+    const updatingUserId = payload.id;
+    if (userId !== updatingUserId) {
+      throw new BadRequestException('Unauthorized! User not allowed to update');
     }
 
-    // ? Why the claim should be {id, email} but received {sub, email}?
-    const claim = await this.extractToken(token);
-    console.log(claim);
-    if (claim.sub != requestedUserId) {
-      throw new BadRequestException('Unauthorized');
-    }
-
-    const user = await this.findById(requestedUserId);
+    const user = await this.findById(updatingUserId);
     if (!user) {
       throw new BadRequestException('User not found');
     }
 
-    // * Update the username if changes happened to the first name or last name
-    let username: string = user.username;
-    if (
-      payload.firstName != user.firstName ||
-      payload.lastName != user.lastName
-    ) {
-      username = await this.getUsername(payload.firstName, payload.lastName);
+    const updatedUser: Partial<UserDocument> = {
+      updateAt: new Date(),
+    };
+
+    if (payload.firstName !== user.firstName) {
+      updatedUser.firstName = payload.firstName;
+      updatedUser.username = await this.getUsername(
+        updatedUser.firstName,
+        user.lastName,
+      );
     }
 
-    let password: string = user.password;
+    if (payload.lastName !== user.lastName) {
+      updatedUser.lastName = payload.lastName;
+      updatedUser.username = await this.getUsername(
+        updatedUser.firstName,
+        payload.lastName,
+      );
+    }
+
     const passwordMatches = await argon2.verify(
       user.password,
       payload.password,
     );
     if (!passwordMatches) {
-      password = await argon2.hash(payload.password);
+      updatedUser.password = await argon2.hash(payload.password);
+    }
+
+    if (payload.gender !== user.gender.toString()) {
+      updatedUser.gender = toGender(payload.gender);
+    }
+
+    if (payload.dateOfBirth !== user.dateOfBirth) {
+      updatedUser.dateOfBirth = new Date(payload.dateOfBirth);
     }
 
     return await this.userModel
-      .findByIdAndUpdate(
-        requestedUserId,
-        {
-          ...payload,
-          username: username,
-          password: password,
-          updatedAt: Date.now(),
-        },
-        { new: true },
-      )
+      .findByIdAndUpdate(updatingUserId, updatedUser, { new: true })
       .exec();
   }
 
@@ -121,15 +123,15 @@ export class UserService {
       .exec();
   }
 
-  async remove(id: string): Promise<UserDocument> {
-    const user = await this.findById(id);
+  async remove(payload: RemoveUserDto): Promise<UserDocument> {
+    const user = await this.findById(payload.id);
     if (!user) {
       throw new BadRequestException('User not found');
     }
 
     return await this.userModel
       .findByIdAndUpdate(
-        id,
+        payload.id,
         {
           updatedAt: Date.now(),
           deleteAt: Date.now(),
@@ -149,14 +151,5 @@ export class UserService {
       .replace(' ', '-')
       .concat(lastName.toLowerCase().trim().replace(' ', '-'))
       .concat(Date.now().toString());
-  }
-
-  private async extractToken(token: string) {
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-      return decoded;
-    } catch (err) {
-      return err;
-    }
   }
 }

@@ -4,6 +4,8 @@ import { UpdateGroupChatDto } from './dto/update-group-chat.dto';
 import { GroupChat, GroupChatDocument } from './entities/group-chat.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import * as jwt from 'jsonwebtoken';
+import { JwtPayload } from 'src/auth/dto/jwt-payload.dto';
 
 @Injectable()
 export class GroupChatService {
@@ -28,8 +30,15 @@ export class GroupChatService {
     }).save();
   }
 
-  async findAll(): Promise<GroupChatDocument[]> {
-    return await this.groupChatModel.find({ deleteAt: null }).exec();
+  async findAllByHostId(token: string): Promise<GroupChatDocument[]> {
+    const claim = await this.extractToken(token);
+
+    return await this.groupChatModel
+      .find({
+        hostId: claim.sub,
+        deleteAt: null,
+      })
+      .exec();
   }
 
   async findById(id: string): Promise<GroupChatDocument> {
@@ -47,13 +56,20 @@ export class GroupChatService {
   }
 
   async update(
-    id: string,
+    token: string,
     updateGroupChatDto: UpdateGroupChatDto,
   ): Promise<GroupChatDocument> {
-    const existingGroupChatById = await this.findById(id);
+    console.log('payload:', updateGroupChatDto);
+
+    const requestedGroupChatId = updateGroupChatDto.id;
+    const existingGroupChatById = await this.findById(requestedGroupChatId);
     if (!existingGroupChatById) {
       throw new BadRequestException('Group chat not found!');
     }
+
+    const claim = this.extractToken(token);
+    console.log('claim:', claim);
+    // if (claim.sub != )
 
     const existingGroupChatByName = await this.findByName(
       updateGroupChatDto.name,
@@ -68,7 +84,7 @@ export class GroupChatService {
 
     return await this.groupChatModel
       .findByIdAndUpdate(
-        id,
+        requestedGroupChatId,
         {
           ...updateGroupChatDto,
           updatedAt: new Date(),
@@ -93,5 +109,14 @@ export class GroupChatService {
         { new: true },
       )
       .exec();
+  }
+
+  private async extractToken(token: string) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+      return decoded;
+    } catch (err) {
+      return err;
+    }
   }
 }

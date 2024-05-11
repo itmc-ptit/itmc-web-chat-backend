@@ -13,21 +13,21 @@ import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AccessTokenGuard } from 'src/auth/gurads/access-token-auth.guard';
-import { Request } from 'express';
+import { UserResponse } from './dto/user-response.dto';
+import { RemoveUserDto } from './dto/remove-user.dto';
 
+@UseGuards(AccessTokenGuard)
 @Controller('api/v1/users')
 @ApiTags('Users')
 export class UsersController {
   constructor(private readonly userService: UserService) {}
 
-  @UseGuards(AccessTokenGuard)
   @Get('me')
   getProfile(@Req() req: any) {
-    const user = this.userService.findById(req.user.sub);
+    const user: UserResponse = req.user;
     return user;
   }
 
-  @UseGuards(AccessTokenGuard)
   @Get(':id')
   findById(@Param('id') id: string) {
     const user = this.userService.findById(id);
@@ -38,22 +38,14 @@ export class UsersController {
     return user;
   }
 
-  @UseGuards(AccessTokenGuard)
   @Patch()
-  update(@Req() req: Request, @Body() updateUserDto: UpdateUserDto) {
-    const token: string = this.getTokenFromHeader(req);
-    return this.userService.update(token, updateUserDto);
+  update(@Req() req: any, @Body() payload: UpdateUserDto) {
+    const user: UserResponse = req.user;
+    return this.userService.update(user._id.toString(), payload);
   }
 
-  @UseGuards(AccessTokenGuard)
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(id);
-  }
-
-  private getTokenFromHeader(req: Request): string {
-    const authHeader = req.headers.authorization;
-    const token: string = authHeader.split(' ')[1];
-    return token;
+  @Delete()
+  remove(@Body() payload: RemoveUserDto) {
+    return this.userService.remove(payload);
   }
 }

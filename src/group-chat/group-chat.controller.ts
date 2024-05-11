@@ -8,12 +8,14 @@ import {
   Delete,
   BadRequestException,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { GroupChatService } from './group-chat.service';
 import { CreateGroupChatDto } from './dto/create-group-chat.dto';
 import { UpdateGroupChatDto } from './dto/update-group-chat.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AccessTokenGuard } from 'src/auth/gurads/access-token-auth.guard';
+import { Request } from 'express';
 
 /**
  * Group Chat Controller
@@ -43,8 +45,9 @@ export class GroupChatController {
   }
 
   @Get()
-  findAll() {
-    return this.groupChatService.findAll();
+  findAll(@Req() req: Request) {
+    const token = this.getTokenFromHeader(req);
+    return this.groupChatService.findAllByHostId(token);
   }
 
   @Get('name/:name')
@@ -65,13 +68,20 @@ export class GroupChatController {
     return groupChat;
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() body: UpdateGroupChatDto) {
-    return this.groupChatService.update(id, body);
+  @Patch()
+  update(@Req() req: Request, @Body() body: UpdateGroupChatDto) {
+    const token = this.getTokenFromHeader(req);
+    return this.groupChatService.update(token, body);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.groupChatService.remove(id);
+  }
+
+  private getTokenFromHeader(req: Request): string {
+    const authHeader = req.headers.authorization;
+    const token: string = authHeader.split(' ')[1];
+    return token;
   }
 }

@@ -9,6 +9,8 @@ import * as argon2 from 'argon2';
 import { UserAuthenticationPayload } from './dto/user-authentication-payload.dto';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './dto/jwt-payload.dto';
+import * as jwt from 'jsonwebtoken';
+import { UserResponse } from 'src/user/dto/user-response.dto';
 
 export interface Tokens {
   accessToken: string;
@@ -37,15 +39,17 @@ export class AuthService {
     });
 
     const tokens: Tokens = await this.generateTokens({
-      id: newUser._id,
+      sub: newUser._id,
       email: newUser.email,
     });
     await this.userService.updateRefreshToken(newUser._id, tokens.refreshToken);
 
-    return {
+    const userResponse: UserResponse = {
       ...newUser.toJSON(),
-      jwt: tokens.accessToken,
+      accessToken: tokens.accessToken,
     };
+
+    return userResponse;
   }
 
   async validateUser({ email, password }: UserAuthenticationPayload) {
@@ -60,22 +64,49 @@ export class AuthService {
     }
 
     const tokens: Tokens = await this.generateTokens({
-      id: user._id,
+      sub: user._id,
       email: user.email,
     });
     await this.userService.updateRefreshToken(user._id, tokens.refreshToken);
 
-    return {
+    const userResponse: UserResponse = {
       ...user.toJSON(),
-      jwt: tokens.accessToken,
+      accessToken: tokens.accessToken,
     };
+
+    return userResponse;
+  }
+
+  async validateAccessToken(payload: JwtPayload) {
+    const user = await this.userService.findById(payload.sub);
+    if (!user || user.email !== payload.email) {
+      throw new UnauthorizedException('Unauthorized!');
+    }
+
+    const accessToken = jwt.sign(
+      {
+        sub: user._id,
+        email: user.email,
+      },
+      process.env.JWT_ACCESS_SECRET,
+      {
+        expiresIn: '1h',
+      },
+    );
+
+    const userResponse: UserResponse = {
+      ...user.toJSON(),
+      accessToken: accessToken,
+    };
+
+    return userResponse;
   }
 
   async generateTokens(jwtPayload: JwtPayload): Promise<Tokens> {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
-          sub: jwtPayload.id,
+          sub: jwtPayload.sub,
           email: jwtPayload.email,
         },
         {
@@ -85,7 +116,7 @@ export class AuthService {
       ),
       this.jwtService.signAsync(
         {
-          sub: jwtPayload.id,
+          sub: jwtPayload.sub,
           email: jwtPayload.email,
         },
         {

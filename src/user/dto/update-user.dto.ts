@@ -1,38 +1,52 @@
-import { IsDate, IsEmail, IsNotEmpty, IsString } from '@nestjs/class-validator';
+import { IsDate, IsNotEmpty, IsString } from '@nestjs/class-validator';
 import { Expose } from 'class-transformer';
 import { IsValidGender } from 'src/validators/gender.validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateUserDto {
-  @ApiProperty()
+  @ApiProperty({
+    type: String,
+    description: 'The updating user id',
+  })
   @IsString()
   @IsNotEmpty()
   id: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @ApiProperty({
+    type: String,
+    description: 'The password of the user',
+  })
+  @IsString({})
   password: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: String,
+    description: 'The first name of the user',
+  })
   @IsString()
-  @IsNotEmpty()
   @Expose({ name: 'first_name' })
   firstName: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: String,
+    description: 'The last name of the user',
+  })
   @IsString()
-  @IsNotEmpty()
   @Expose({ name: 'last_name' })
   lastName: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiProperty({
+    type: String,
+    description: 'The user gender, either male or female',
+  })
   @IsValidGender()
   gender: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: Date,
+    description: 'The date of birth of the user',
+  })
   @IsDate()
-  @IsNotEmpty()
   @Expose({ name: 'date_of_birth' })
   dateOfBirth: Date;
 
