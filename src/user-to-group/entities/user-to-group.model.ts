@@ -6,8 +6,6 @@ import { GroupChat } from 'src/group-chat/entities/group-chat.model';
 import { BaseEntity } from 'src/helper/base-entity.model';
 import { User } from 'src/user/entities/user.model';
 import { IsValidRole } from '../validator/role.validator';
-import { IsValidUserToGroupStatus } from '../validator/user-to-group-status.validator';
-import { MemberStatus } from './member-status.enum';
 import { MemberRole } from './member-role.enum';
 
 export type UserToGroupDocument = UserToGroup & Document;
@@ -38,10 +36,6 @@ export class UserToGroup extends BaseEntity {
 
   @Prop({ required: false })
   isBlocked: boolean;
-
-  @IsValidUserToGroupStatus()
-  @Prop({ required: false })
-  status: MemberStatus;
 }
 
 export const UserToGroupSchema = SchemaFactory.createForClass(UserToGroup);

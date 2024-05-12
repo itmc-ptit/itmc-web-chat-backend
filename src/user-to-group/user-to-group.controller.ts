@@ -8,12 +8,14 @@ import {
   Delete,
   BadRequestException,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UserToGroupService } from './user-to-group.service';
 import { CreateUserToGroupDto } from './dto/create-user-to-group.dto';
-import { UpdateUserToGroupDto } from './dto/update-user-to-group.dto';
+import { UpdateGroupChatHostDto } from './dto/update-group-chat-host.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AccessTokenGuard } from 'src/auth/gurads/access-token-auth.guard';
+import { UserResponse } from 'src/user/dto/user-response.dto';
 
 @ApiTags('User To Groups')
 @UseGuards(AccessTokenGuard)
@@ -45,9 +47,10 @@ export class UserToGroupController {
     return usertoGroup;
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() payload: UpdateUserToGroupDto) {
-    return this.userToGroupService.update(id, payload);
+  @Patch()
+  update(@Req() req: any, @Body() payload: UpdateGroupChatHostDto) {
+    const user: UserResponse = req.user;
+    return this.userToGroupService.updateGroupChatHost(user._id, payload);
   }
 
   @Delete(':id')

@@ -1,25 +1,22 @@
 import { IsString } from '@nestjs/class-validator';
 import { IsNotEmpty } from 'class-validator';
 import { IsValidRole } from '../validator/role.validator';
-import { IsValidUserToGroupStatus } from '../validator/user-to-group-status.validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UpdateUserToGroupDto {
+export class UpdateGroupChatHostDto {
   @ApiProperty({
     type: String,
-    description: 'The role of the user in the group chat',
+    description: 'The user to group id',
   })
   @IsNotEmpty()
   @IsString()
-  @IsValidRole()
-  role: string;
+  groupChatId: string;
 
   @ApiProperty({
     type: String,
-    description: 'The status of the user in the group chat',
+    description: 'The new host id',
   })
   @IsNotEmpty()
   @IsString()
-  @IsValidUserToGroupStatus()
-  status: string;
+  newHostId: string;
 }
