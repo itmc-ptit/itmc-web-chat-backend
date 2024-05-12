@@ -29,7 +29,6 @@ export class GroupChatController {
 
   @Post()
   create(@Body() payload: CreateGroupChatDto) {
-    console.log('create payload:', payload);
     return this.groupChatService.create(payload);
   }
 

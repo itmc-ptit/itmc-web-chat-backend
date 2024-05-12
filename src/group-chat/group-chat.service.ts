@@ -13,7 +13,7 @@ import { MemberRole } from 'src/user-to-group/entities/member-role.enum';
 import { MemberStatus } from 'src/user-to-group/entities/member-status.enum';
 import { CreateUserToGroupDto } from 'src/user-to-group/dto/create-user-to-group.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { UserToGroupEvent } from 'src/user-to-group/user-to-group.service';
+import { ServiceEvent } from 'src/user-to-group/entities/service-event.enum';
 
 @Injectable()
 export class GroupChatService {
@@ -49,7 +49,7 @@ export class GroupChatService {
 
     // TODO: figure out how to use the enum user to group event to remove the string literal
     const createdUserToGroup = await this.eventEmitter.emitAsync(
-      'user.creating',
+      ServiceEvent.CREATING,
       createUserToGroupPayload,
     );
     if (!createdUserToGroup) {

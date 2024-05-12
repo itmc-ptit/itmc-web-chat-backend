@@ -12,10 +12,7 @@ import { UserService } from 'src/user/user.service';
 import { UserDocument } from 'src/user/entities/user.model';
 import { GroupChatDocument } from 'src/group-chat/entities/group-chat.model';
 import { OnEvent } from '@nestjs/event-emitter';
-
-export enum UserToGroupEvent {
-  CREATING = 'user.creating',
-}
+import { ServiceEvent } from './entities/service-event.enum';
 
 @Injectable()
 export class UserToGroupService {
@@ -26,7 +23,7 @@ export class UserToGroupService {
     private readonly userService: UserService,
   ) {}
 
-  @OnEvent(UserToGroupEvent.CREATING)
+  @OnEvent(ServiceEvent.CREATING)
   async create(payload: CreateUserToGroupDto): Promise<UserToGroupDocument> {
     const targetingUser: UserDocument = await this.userService.findById(
       payload.userId,
