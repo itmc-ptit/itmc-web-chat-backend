@@ -57,6 +57,24 @@ export class UserService {
     return await this.userModel.findOne({ email: email, deleteAt: null });
   }
 
+  async findAllActiveUser() {
+    const activeUsers: UserDocument[] = await this.userModel
+      .find({
+        status: UserStatus.Active,
+        deleteAt: null,
+      })
+      .exec();
+
+    return activeUsers.map((user) => {
+      return {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user,
+      };
+    });
+  }
+
   async update(userId: string, payload: UpdateUserDto): Promise<UserDocument> {
     const updatingUserId = payload.id;
     if (userId !== updatingUserId) {

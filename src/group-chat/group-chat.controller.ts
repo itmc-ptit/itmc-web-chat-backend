@@ -38,7 +38,6 @@ export class GroupChatController {
     if (user._id.toString() !== hostId) {
       throw new UnauthorizedException('Unauthorized access');
     }
-    console.log('hostId', hostId);
 
     return this.groupChatService.findAllByHostId(hostId);
   }
