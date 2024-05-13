@@ -5,6 +5,8 @@ import { Document } from 'mongoose';
 import { BaseEntity } from 'src/helper/base-entity.model';
 import { IsValidGender } from 'src/user/validator/gender.validator';
 import { Gender } from './gender.enum';
+import { UserStatus } from './user-status.enum';
+import { IsValidUserStatus } from '../validator/user-status.validator';
 
 export type UserDocument = User & Document;
 
@@ -46,6 +48,11 @@ export class User extends BaseEntity {
   @Prop({ required: true })
   @Expose({ name: 'date_of_birth' })
   dateOfBirth: Date;
+
+  @IsNotEmpty()
+  @Prop({ required: true })
+  @IsValidUserStatus()
+  status: UserStatus;
 
   @IsString()
   @Prop({ required: false })

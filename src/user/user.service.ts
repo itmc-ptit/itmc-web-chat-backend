@@ -7,6 +7,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import * as argon2 from 'argon2';
 import { RemoveUserDto } from './dto/remove-user.dto';
 import { toGender } from './entities/gender.enum';
+import { UserStatus } from './entities/user-status.enum';
+import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 
 @Injectable()
 export class UserService {
@@ -28,6 +30,7 @@ export class UserService {
 
     return await new this.userModel({
       ...createUserDto,
+      status: UserStatus.Active,
       username: username,
       createAt: Date.now(),
       updatedAt: Date.now(),
@@ -120,6 +123,31 @@ export class UserService {
         refreshToken: refreshToken,
         updatedAt: Date.now(),
       })
+      .exec();
+  }
+
+  async updateStatus(
+    userIdFromToken: string,
+    payload: UpdateUserStatusDto,
+  ): Promise<UserDocument> {
+    const user: UserDocument = await this.findById(payload.id);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    if (userIdFromToken !== payload.id) {
+      throw new BadRequestException('Unauthorized! User not allowed to update');
+    }
+
+    return await this.userModel
+      .findByIdAndUpdate(
+        payload.id,
+        {
+          status: payload.status,
+          updatedAt: Date.now(),
+        },
+        { new: true },
+      )
       .exec();
   }
 

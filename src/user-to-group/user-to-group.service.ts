@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateUserToGroupDto } from './dto/create-user-to-group.dto';
 import { UpdateGroupChatHostDto } from './dto/update-group-chat-host.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -13,6 +18,7 @@ import { UserDocument } from 'src/user/entities/user.model';
 import { GroupChatDocument } from 'src/group-chat/entities/group-chat.model';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ServiceEvent } from './entities/service-event.enum';
+import { MemberRole } from './entities/member-role.enum';
 
 @Injectable()
 export class UserToGroupService {
@@ -106,8 +112,10 @@ export class UserToGroupService {
     userId: string,
     payload: UpdateGroupChatHostDto,
   ): Promise<UserToGroupDocument> {
-    const groupChat = await this.groupChatService.findById(payload.groupChatId);
-    if (!groupChat) {
+    const updatingGroupChat = await this.groupChatService.findById(
+      payload.groupChatId,
+    );
+    if (!updatingGroupChat) {
       throw new BadRequestException('Group chat not found!');
     }
 
@@ -116,34 +124,41 @@ export class UserToGroupService {
       payload.groupChatId,
     );
     if (!hostInGroupChat) {
-      throw new BadRequestException('Unauthorized! Not group chat host!');
+      throw new UnauthorizedException('Unauthorized! Not a group chat member!');
     } else if (hostInGroupChat.role !== 'host') {
-      throw new BadRequestException('Unauthorized! Only host can access!');
+      throw new UnauthorizedException('Unauthorized! Not the group chat host!');
     }
 
-    const userInGroupChat: UserToGroupDocument = await this.isUserInGroupChat(
-      payload.newHostId,
-      payload.groupChatId,
-    );
-    if (!userInGroupChat) {
-      throw new BadRequestException('User not in group chat!');
+    const newHostInGroupChat: UserToGroupDocument =
+      await this.isUserInGroupChat(payload.newHostId, payload.groupChatId);
+    if (!newHostInGroupChat) {
+      throw new UnauthorizedException('Unauthorized! Not a group chat member!');
     }
 
-    const updateGroupChatHost = await this.groupChatService.updateHost(
+    const updatedGroupChatHost = await this.groupChatService.updateHost(
       payload.groupChatId,
       payload.newHostId,
     );
-    if (!updateGroupChatHost) {
+    if (!updatedGroupChatHost) {
       throw new BadRequestException('Failed to update host!');
+    }
+
+    const updatedUserToGroupHost: UserToGroupDocument =
+      await this.userToGroupModel.findByIdAndUpdate(newHostInGroupChat._id, {
+        role: MemberRole.Host,
+        updateAt: new Date(),
+      });
+    if (!updatedUserToGroupHost) {
+      throw new BadRequestException('Failed to update new host!');
     }
 
     try {
       return await this.userToGroupModel
         .findByIdAndUpdate(
-          userInGroupChat._id,
+          hostInGroupChat._id,
           {
             hostId: payload.newHostId,
-            role: 'host',
+            role: MemberRole.Member,
             updateAt: new Date(),
           },
           { new: true },

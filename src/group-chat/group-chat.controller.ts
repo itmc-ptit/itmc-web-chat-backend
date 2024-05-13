@@ -33,11 +33,12 @@ export class GroupChatController {
   }
 
   @Get('host/:hostId')
-  findAll(@Req() req: any, @Param('hostId') hostId: string) {
+  findAllByHostId(@Req() req: any, @Param('hostId') hostId: string) {
     const user: UserResponse = req.user;
     if (user._id.toString() !== hostId) {
       throw new UnauthorizedException('Unauthorized access');
     }
+    console.log('hostId', hostId);
 
     return this.groupChatService.findAllByHostId(hostId);
   }
