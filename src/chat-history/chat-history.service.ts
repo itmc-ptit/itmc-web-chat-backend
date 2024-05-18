@@ -74,6 +74,10 @@ export class ChatHistoryService {
   async findAllByGroupChatId(
     payload: FetchChatHistoryDto,
   ): Promise<ChatHistoryDocument[]> {
+    if (!payload.groupChatId) {
+      throw new BadRequestException('Group chat id is required');
+    }
+
     const existingGroupChat = await this.eventEmitter.emitAsync(
       GroupChatServiceEvent.FIND_BY_ID,
       payload.groupChatId,
