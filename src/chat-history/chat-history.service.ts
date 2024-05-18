@@ -70,6 +70,10 @@ export class ChatHistoryService {
       .exec();
   }
 
+  /**
+   * ! This service allows for any fetching of chat history of any group chat exsiting in the database
+   * TODO: add user checking if user is in the group chat
+   */
   @OnEvent(ChatHistoryServiceEvent.FETCH)
   async findAllByGroupChatId(
     payload: FetchChatHistoryDto,
@@ -86,18 +90,19 @@ export class ChatHistoryService {
       throw new BadRequestException('Group chat not found');
     }
 
-    const messageTimestamp = payload.timestamp
-      ? new Date(payload.timestamp)
-      : new Date(new Date().getTime() + 10 * 60000);
-
     const numberOfMessages = payload.limit ? payload.limit : 10;
 
+    const query: any = {
+      groupChatId: payload.groupChatId,
+      deleteAt: null,
+    };
+
+    if (payload.timestamp) {
+      query.createAt = { $gte: new Date(payload.timestamp) };
+    }
+
     return await this.chatHistoryModel
-      .find({
-        groupChatId: payload.groupChatId,
-        createAt: { $gte: messageTimestamp },
-        deleteAt: null,
-      })
+      .find(query)
       .sort({ createAt: -1 })
       .limit(numberOfMessages)
       .exec();
