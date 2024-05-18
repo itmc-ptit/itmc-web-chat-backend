@@ -105,6 +105,7 @@ export class ChatHistoryService {
       .find(query)
       .sort({ createAt: -1 })
       .limit(numberOfMessages)
+      .populate('userId')
       .exec();
   }
 
