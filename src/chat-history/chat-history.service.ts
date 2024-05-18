@@ -57,8 +57,8 @@ export class ChatHistoryService {
     const now = new Date();
     const chatHistory = new this.chatHistoryModel({
       ...payload,
-      createdAt: now,
-      updatedAt: now,
+      createAt: now,
+      updateAt: now,
     });
     return await chatHistory.save();
   }

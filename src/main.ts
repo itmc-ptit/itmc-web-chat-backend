@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
@@ -28,7 +27,6 @@ async function bootstrap() {
     },
   });
 
-  const configService: ConfigService = app.get(ConfigService);
   const port: number = +process.env.SERVER_PORT;
   await app.listen(port, () => console.log(`Listening on port ${port}`));
 }
