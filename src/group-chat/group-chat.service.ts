@@ -8,11 +8,13 @@ import { CreateGroupChatDto } from './dto/create-group-chat.dto';
 import { UpdateGroupChatDto } from './dto/update-group-chat.dto';
 import { GroupChat, GroupChatDocument } from './entities/group-chat.model';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
 import { MemberRole } from 'src/user-to-group/entities/member-role.enum';
 import { CreateUserToGroupDto } from 'src/user-to-group/dto/create-user-to-group.dto';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ServiceEvent } from 'src/user-to-group/entities/service-event.enum';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { UserToGroupServiceEvent } from 'src/user-to-group/entities/service-event.enum';
+import { GroupChatServiceEvent } from './entities/group-chat-service-event.enum';
+import { Model } from 'mongoose';
+import { UserServiceEvent } from 'src/user/entities/user-service-event.enum';
 
 @Injectable()
 export class GroupChatService {
@@ -23,12 +25,12 @@ export class GroupChatService {
   ) {}
 
   async create(payload: CreateGroupChatDto): Promise<GroupChatDocument> {
-    const nameDuplicates = await this.isDuplicateName(payload.name);
-    if (nameDuplicates) {
+    const duplicatingName = await this.isDuplicateName(payload.name);
+    if (duplicatingName) {
       throw new BadRequestException('Group chat name already exists!');
     }
 
-    const groupChatDocument: Partial<GroupChatDocument> = {
+    const newGroupChatDocument: Partial<GroupChatDocument> = {
       ...payload,
       createAt: new Date(),
       updateAt: new Date(),
@@ -36,7 +38,7 @@ export class GroupChatService {
     };
 
     const createdGroupChat: GroupChatDocument = await new this.groupChatModel(
-      groupChatDocument,
+      newGroupChatDocument,
     ).save();
 
     const createUserToGroupPayload: CreateUserToGroupDto = {
@@ -46,7 +48,7 @@ export class GroupChatService {
     };
 
     const createdUserToGroup = await this.eventEmitter.emitAsync(
-      ServiceEvent.CREATING,
+      UserToGroupServiceEvent.CREATING,
       createUserToGroupPayload,
     );
     if (!createdUserToGroup) {
@@ -67,6 +69,7 @@ export class GroupChatService {
       .exec();
   }
 
+  @OnEvent(GroupChatServiceEvent.FIND_BY_ID)
   async findById(id: string): Promise<GroupChatDocument> {
     return await this.groupChatModel
       .findOne({
@@ -76,6 +79,7 @@ export class GroupChatService {
       .exec();
   }
 
+  @OnEvent(GroupChatServiceEvent.FIND_BY_NAME)
   async findByName(name: string): Promise<GroupChatDocument> {
     return await this.groupChatModel.findOne({
       name: name,
@@ -83,20 +87,29 @@ export class GroupChatService {
     });
   }
 
+  @OnEvent(GroupChatServiceEvent.UPDATE_HOST)
   async updateHost(
     groupChatId: string,
-    hostId: string,
+    newHostId: string,
   ): Promise<GroupChatDocument> {
     const groupChat = await this.findById(groupChatId);
     if (!groupChat) {
       throw new BadRequestException('Group chat not found!');
     }
 
+    const existingUser = await this.eventEmitter.emitAsync(
+      UserServiceEvent.FIND_BY_ID,
+      newHostId,
+    );
+    if (!existingUser) {
+      throw new BadRequestException('User not found!');
+    }
+
     return await this.groupChatModel
       .findByIdAndUpdate(
         groupChatId,
         {
-          hostId: hostId,
+          hostId: newHostId,
           updateAt: new Date(),
         },
         { new: true },
@@ -104,6 +117,7 @@ export class GroupChatService {
       .exec();
   }
 
+  // TODO: update this method
   async update(
     hostId: string,
     payload: UpdateGroupChatDto,

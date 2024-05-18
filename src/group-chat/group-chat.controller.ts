@@ -61,9 +61,9 @@ export class GroupChatController {
   }
 
   @Patch()
-  update(@Req() req: any, @Body() body: UpdateGroupChatDto) {
+  update(@Req() req: any, @Body() payload: UpdateGroupChatDto) {
     const user: UserResponse = req.user;
-    return this.groupChatService.update(user._id, body);
+    return this.groupChatService.update(user._id.toString(), payload);
   }
 
   @Delete()

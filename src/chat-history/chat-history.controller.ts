@@ -8,12 +8,16 @@ import {
   Delete,
   BadRequestException,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ChatHistoryService } from './chat-history.service';
 import { CreateChatHistoryDto } from './dto/create-chat-history.dto';
 import { UpdateChatHistoryDto } from './dto/update-chat-history.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AccessTokenGuard } from 'src/auth/gurads/access-token-auth.guard';
+import { UserResponse } from 'src/user/dto/user-response.dto';
+import { FetchChatHistoryDto } from './dto/fetch-chat-history.dto';
+import { ChatHistoryDocument } from './entities/chat-history.model';
 
 @UseGuards(AccessTokenGuard)
 @Controller('api/v1/chat-histories')
@@ -22,22 +26,19 @@ export class ChatHistoryController {
   constructor(private readonly chatHistoryService: ChatHistoryService) {}
 
   @Post()
-  create(@Body() body: CreateChatHistoryDto) {
-    return this.chatHistoryService.create(body);
+  create(@Body() payload: CreateChatHistoryDto) {
+    return this.chatHistoryService.create(payload);
   }
 
-  @Get('chat/:groupChatId')
-  findByChatId(@Param('groupChatId') groupChatId: string) {
-    return this.chatHistoryService.findAllByChatId(groupChatId);
-  }
-
-  @Get()
-  findAll() {
-    return this.chatHistoryService.findAll();
+  @Get('messages')
+  findAllByGroupChatId(
+    @Body() payload: FetchChatHistoryDto,
+  ): Promise<ChatHistoryDocument[]> {
+    return this.chatHistoryService.findAllByGroupChatId(payload);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findById(@Param('id') id: string) {
     const chatHistory = this.chatHistoryService.findById(id);
     if (!chatHistory) {
       throw new BadRequestException('Chat history not found');
@@ -46,9 +47,10 @@ export class ChatHistoryController {
     return chatHistory;
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() body: UpdateChatHistoryDto) {
-    return this.chatHistoryService.update(id, body);
+  @Patch()
+  update(@Req() req: any, @Body() payload: UpdateChatHistoryDto) {
+    const user: UserResponse = req.user;
+    return this.chatHistoryService.update(user._id.toString(), payload);
   }
 
   @Delete(':id')

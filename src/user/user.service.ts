@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from './entities/user.model';
@@ -9,6 +13,8 @@ import { RemoveUserDto } from './dto/remove-user.dto';
 import { toGender } from './entities/gender.enum';
 import { UserStatus } from './entities/user-status.enum';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
+import { OnEvent } from '@nestjs/event-emitter';
+import { UserServiceEvent } from './entities/user-service-event.enum';
 
 @Injectable()
 export class UserService {
@@ -17,19 +23,19 @@ export class UserService {
     private readonly userModel: Model<UserDocument>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<UserDocument> {
-    const user = await this.findByEmail(createUserDto.email);
+  async create(payload: CreateUserDto): Promise<UserDocument> {
+    const user = await this.findByEmail(payload.email);
     if (user) {
       throw new BadRequestException('Email already exists');
     }
 
     const username: string = await this.getUsername(
-      createUserDto.firstName,
-      createUserDto.lastName,
+      payload.firstName,
+      payload.lastName,
     );
 
     return await new this.userModel({
-      ...createUserDto,
+      ...payload,
       status: UserStatus.Active,
       username: username,
       createAt: Date.now(),
@@ -46,6 +52,7 @@ export class UserService {
       .exec();
   }
 
+  @OnEvent(UserServiceEvent.FIND_BY_ID)
   async findById(id: string): Promise<UserDocument> {
     return await this.userModel.findOne({
       _id: id,
@@ -53,6 +60,7 @@ export class UserService {
     });
   }
 
+  @OnEvent(UserServiceEvent.FIND_BY_EMAIL)
   async findByEmail(email: string): Promise<UserDocument> {
     return await this.userModel.findOne({ email: email, deleteAt: null });
   }
@@ -75,14 +83,19 @@ export class UserService {
     });
   }
 
-  async update(userId: string, payload: UpdateUserDto): Promise<UserDocument> {
+  async update(
+    userIdFromToken: string,
+    payload: UpdateUserDto,
+  ): Promise<UserDocument> {
     const updatingUserId = payload.id;
-    if (userId !== updatingUserId) {
-      throw new BadRequestException('Unauthorized! User not allowed to update');
+    if (userIdFromToken !== updatingUserId) {
+      throw new ForbiddenException(
+        'Forbidden! Cannot update other user profile',
+      );
     }
 
-    const user = await this.findById(updatingUserId);
-    if (!user) {
+    const existingUser = await this.findById(updatingUserId);
+    if (!existingUser) {
       throw new BadRequestException('User not found');
     }
 
@@ -90,15 +103,15 @@ export class UserService {
       updateAt: new Date(),
     };
 
-    if (payload.firstName !== user.firstName) {
+    if (payload.firstName !== existingUser.firstName) {
       updatedUser.firstName = payload.firstName;
       updatedUser.username = await this.getUsername(
         updatedUser.firstName,
-        user.lastName,
+        existingUser.lastName,
       );
     }
 
-    if (payload.lastName !== user.lastName) {
+    if (payload.lastName !== existingUser.lastName) {
       updatedUser.lastName = payload.lastName;
       updatedUser.username = await this.getUsername(
         updatedUser.firstName,
@@ -107,18 +120,18 @@ export class UserService {
     }
 
     const passwordMatches = await argon2.verify(
-      user.password,
+      existingUser.password,
       payload.password,
     );
     if (!passwordMatches) {
       updatedUser.password = await argon2.hash(payload.password);
     }
 
-    if (payload.gender !== user.gender.toString()) {
+    if (payload.gender !== existingUser.gender.toString()) {
       updatedUser.gender = toGender(payload.gender);
     }
 
-    if (payload.dateOfBirth !== user.dateOfBirth) {
+    if (payload.dateOfBirth !== existingUser.dateOfBirth) {
       updatedUser.dateOfBirth = new Date(payload.dateOfBirth);
     }
 

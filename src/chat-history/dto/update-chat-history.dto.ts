@@ -1,7 +1,26 @@
-import { OmitType } from '@nestjs/mapped-types';
-import { ChatHistory } from '../entities/chat-history.model';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
 
-export class UpdateChatHistoryDto extends OmitType(ChatHistory, [
-  'userId',
-  'groupChatId',
-]) {}
+export class UpdateChatHistoryDto {
+  @ApiProperty({
+    description: 'Message id',
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  chatHistoryId: string;
+
+  @ApiProperty({
+    description: 'Message',
+    type: String,
+  })
+  @IsString()
+  message: string;
+
+  @ApiProperty({
+    description: 'Attachment',
+    type: String,
+  })
+  @IsString()
+  attachment: string;
+}

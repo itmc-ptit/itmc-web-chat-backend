@@ -1,6 +1,6 @@
-import { PartialType } from '@nestjs/mapped-types';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { Expose } from 'class-transformer';
+import { IsDate, IsNotEmpty, IsString } from 'class-validator';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { GroupChat } from 'src/group-chat/entities/group-chat.model';
 import { BaseEntity } from 'src/helper/base-entity.model';
@@ -41,11 +41,13 @@ export class ChatHistory extends BaseEntity {
 
 export const ChatHistorySchema = SchemaFactory.createForClass(ChatHistory);
 
+ChatHistorySchema.index({ createAt: -1 });
+
 ChatHistorySchema.index(
   {
     userId: 1,
     groupChatId: 1,
-    createdAt: 1,
+    createAt: 1,
   },
   { unique: true },
 );

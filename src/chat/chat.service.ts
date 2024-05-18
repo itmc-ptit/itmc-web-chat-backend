@@ -1,58 +1,26 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { Subject } from 'rxjs';
+import { Injectable } from '@nestjs/common';
 import { MessagePayLoad } from './dto/message.payload.dto';
 import { JoinRoomPayload } from './dto/join-room.payload.dto';
 import { ChatHistoryService } from 'src/chat-history/chat-history.service';
 import { CreateChatHistoryDto } from 'src/chat-history/dto/create-chat-history.dto';
+import { FetchChatHistoryDto } from 'src/chat-history/dto/fetch-chat-history.dto';
 
 @Injectable()
 export class ChatService {
-  constructor(
-    @Inject(ChatHistoryService)
-    private chatHistoryService: ChatHistoryService,
-  ) {}
+  constructor(private chatHistoryService: ChatHistoryService) {}
 
-  private messageSubject = new Subject<{
-    roomId: string;
-    userId: string;
-    message: string;
-  }>();
-
-  private userJoinedSubject = new Subject<{
-    roomId: string;
-    userId: string;
-  }>();
-
-  handleMessage(payload: MessagePayLoad) {
-    // * Saving the message to the database
-    this.chatHistoryService.create({
+  async saveNewMessages(payload: MessagePayLoad) {
+    const newChatHistory: CreateChatHistoryDto = {
       userId: payload.userId,
       groupChatId: payload.groupChatId,
       message: payload.message,
       attachment: payload.attachements,
-    });
+    };
 
-    // * This is for observer pattern
-    // this.messageSubject.next({
-    //   roomId: payload.roomId,
-    //   userId: payload.senderId,
-    //   message: payload.message,
-    // });
+    await this.chatHistoryService.create(newChatHistory);
   }
 
-  async handleUserJoined(payload: JoinRoomPayload) {
-    const messages = this.chatHistoryService.findAllByChatId(payload.roomId);
-    return messages;
-
-    // * This is for observer pattern
-    // this.userJoinedSubject.next({ roomId, userId });
-  }
-
-  onMessage() {
-    return this.messageSubject.asObservable();
-  }
-
-  onUserJoined() {
-    return this.userJoinedSubject.asObservable();
+  async fetchChatHistory(payload: FetchChatHistoryDto) {
+    return await this.chatHistoryService.findAllByGroupChatId(payload);
   }
 }

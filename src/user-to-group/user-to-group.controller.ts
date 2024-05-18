@@ -28,9 +28,9 @@ export class UserToGroupController {
     return this.userToGroupService.findAllByUserId(userId);
   }
 
-  @Get('users/:groupId')
-  findAllByGroupId(@Param('groupId') groupId: string) {
-    return this.userToGroupService.findAllByGroupId(groupId);
+  @Get('users/:groupChatId')
+  findAllByGroupChatId(@Param('groupChatId') groupChatId: string) {
+    return this.userToGroupService.findAllByGroupChatId(groupChatId);
   }
 
   @Post()
