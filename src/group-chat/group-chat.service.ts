@@ -87,6 +87,16 @@ export class GroupChatService {
     });
   }
 
+  @OnEvent(GroupChatServiceEvent.IS_HOST)
+  async isHost(userId: string, groupChatId: string): Promise<boolean> {
+    const groupChat = await this.findById(groupChatId);
+    if (!groupChat) {
+      throw new BadRequestException('Group chat not found!');
+    }
+
+    return groupChat.hostId.toString() === userId;
+  }
+
   @OnEvent(GroupChatServiceEvent.UPDATE_HOST)
   async updateHost(
     groupChatId: string,

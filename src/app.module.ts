@@ -11,6 +11,8 @@ import { UserToGroupModule } from './user-to-group/user-to-group.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { EntityResponseInterceptor } from './interceptors/entity-response.interceptor';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { NotificationModule } from './notification/notification.module';
+import { InvitationModule } from './invitation/invitation.module';
 require('dotenv').config();
 
 @Module({
@@ -25,6 +27,8 @@ require('dotenv').config();
     ChatHistoryModule,
     ChatBanModule,
     UserToGroupModule,
+    NotificationModule,
+    InvitationModule,
   ],
   providers: [
     Logger,
