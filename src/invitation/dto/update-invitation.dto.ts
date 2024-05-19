@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
+import { IsValidInvitationStatus } from '../validators/invitation-status.validator';
 
 export class UpdateInvitationDto {
   @ApiProperty({
@@ -11,6 +12,7 @@ export class UpdateInvitationDto {
   @IsNotEmpty()
   invitaionId: string;
 
+  @IsValidInvitationStatus()
   @ApiProperty({
     description: 'The status of the invitation',
     type: String,

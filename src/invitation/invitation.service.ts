@@ -124,8 +124,8 @@ export class InvitationService {
     }
 
     if (
-      userIdFromtoken !== existingInvitation.recipientId ||
-      userIdFromtoken !== existingInvitation.inviterId
+      userIdFromtoken !== existingInvitation.recipientId.toString() &&
+      userIdFromtoken !== existingInvitation.inviterId.toString()
     ) {
       throw new ForbiddenException('Forbidden! User cannot update invitation');
     }

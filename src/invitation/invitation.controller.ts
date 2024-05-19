@@ -48,7 +48,7 @@ export class InvitationController {
     return this.invitationService.findById(id);
   }
 
-  @Patch(':id')
+  @Patch()
   update(
     @Req() req: any,
     @Body() payload: UpdateInvitationDto,
