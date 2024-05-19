@@ -14,8 +14,13 @@ import { UserToGroupServiceEvent } from 'src/user-to-group/entities/service-even
 import { Invitation, InvitationDocument } from './entities/invitation.entity';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { InvitationStatus } from './entities/invitation-status.enum';
+import {
+  InvitationStatus,
+  toInvitationStatus,
+} from './entities/invitation-status.enum';
 import { UserToGroupDocument } from 'src/user-to-group/entities/user-to-group.model';
+import { ReplyInvitationDto } from './dto/reply-invitaion.dto';
+import { repl } from '@nestjs/core';
 
 @Injectable()
 export class InvitationService {
@@ -111,6 +116,61 @@ export class InvitationService {
       })
       .populate('inviterId')
       .populate('groupChatId');
+  }
+
+  async replyInvitaion(
+    userIdFromToken: string,
+    payload: ReplyInvitationDto,
+  ): Promise<InvitationDocument> {
+    const existingInvitation: InvitationDocument =
+      await this.invitationModel.findById(payload.invitationId);
+    if (!existingInvitation) {
+      throw new BadRequestException('Invitation not found');
+    }
+
+    if (userIdFromToken !== existingInvitation.recipientId.toString()) {
+      throw new ForbiddenException('Forbidden! User cannot reply invitation');
+    }
+
+    if (existingInvitation.status !== InvitationStatus.PENDING) {
+      throw new BadRequestException('Invitation already replied');
+    }
+
+    if (payload.status.toLowerCase() === InvitationStatus.PENDING) {
+      throw new BadRequestException('Invalid status');
+    }
+
+    if (
+      payload.status.toLowerCase() === InvitationStatus.REJECTED &&
+      !payload.denyReason
+    ) {
+      throw new BadRequestException('Deny reason is required');
+    }
+
+    if (
+      payload.status.toLowerCase() === InvitationStatus.ACCEPTED &&
+      payload.denyReason
+    ) {
+      throw new BadRequestException('Deny reason is not required');
+    }
+
+    const reply = {
+      status: payload.status as InvitationStatus,
+      denyReason: payload.denyReason,
+      updateAt: new Date(),
+    };
+    if (payload.status.toLowerCase() !== 'rejected') {
+      reply.denyReason = null;
+    }
+
+    try {
+      const repliedInvitation: InvitationDocument = await this.invitationModel
+        .findByIdAndUpdate(payload.invitationId, reply, { new: true })
+        .exec();
+      return repliedInvitation;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   async update(

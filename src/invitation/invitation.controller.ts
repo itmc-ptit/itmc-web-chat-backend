@@ -15,6 +15,7 @@ import { UpdateInvitationDto } from './dto/update-invitation.dto';
 import { InvitationDocument } from './entities/invitation.entity';
 import { UserResponse } from 'src/user/dto/user-response.dto';
 import { AccessTokenGuard } from 'src/auth/gurads/access-token-auth.guard';
+import { ReplyInvitationDto } from './dto/reply-invitaion.dto';
 
 @UseGuards(AccessTokenGuard)
 @Controller('api/v1/invitations')
@@ -31,6 +32,15 @@ export class InvitationController {
   findAllByInviterId(@Req() req: any): Promise<InvitationDocument[]> {
     const user: UserResponse = req.user;
     return this.invitationService.findAllByInviterId(user._id.toString());
+  }
+
+  @Patch('reply')
+  replyToInvitaion(
+    @Req() req: any,
+    @Body() payload: ReplyInvitationDto,
+  ): Promise<InvitationDocument> {
+    const user: UserResponse = req.user;
+    return this.invitationService.replyInvitaion(user._id.toString(), payload);
   }
 
   @Post()
