@@ -14,13 +14,8 @@ import { UserToGroupServiceEvent } from 'src/user-to-group/entities/service-even
 import { Invitation, InvitationDocument } from './entities/invitation.entity';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-  InvitationStatus,
-  toInvitationStatus,
-} from './entities/invitation-status.enum';
-import { UserToGroupDocument } from 'src/user-to-group/entities/user-to-group.model';
+import { InvitationStatus } from './entities/invitation-status.enum';
 import { ReplyInvitationDto } from './dto/reply-invitaion.dto';
-import { repl } from '@nestjs/core';
 
 @Injectable()
 export class InvitationService {
