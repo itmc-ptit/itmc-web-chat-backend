@@ -32,9 +32,11 @@ export class ChatHistoryController {
 
   @Get('messages')
   findAllByGroupChatId(
+    @Req() req: any,
     @Body() payload: FetchChatHistoryDto,
   ): Promise<ChatHistoryDocument[]> {
-    return this.chatHistoryService.findAllByGroupChatId(payload);
+    const user: UserResponse = req.user;
+    return this.chatHistoryService.findAllByGroupChatId(user._id, payload);
   }
 
   @Get(':id')

@@ -12,11 +12,7 @@ import { ChatService } from './chat.service';
 import { MessagePayLoad } from './dto/message.payload.dto';
 import { JoinRoomPayload } from './dto/join-room.payload.dto';
 import { FetchChatHistoryDto } from 'src/chat-history/dto/fetch-chat-history.dto';
-import { UseFilters } from '@nestjs/common';
-import { AllWsExceptionsFilter } from './filters/websocket.filter';
 
-// ! Error: Cannot user the websocket filter to filter the WsException
-@UseFilters(AllWsExceptionsFilter)
 @WebSocketGateway({ cors: true })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
@@ -57,7 +53,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.chatService.saveNewMessages(payload);
   }
 
-  // TODO: add room validate
   @SubscribeMessage('join-room')
   async handleJoinRoomEvent(
     @ConnectedSocket()
@@ -72,25 +67,43 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
 
-    console.log(
-      `Client [${client.id}] of user [${user.email}] join room [${payload.roomId}]`,
+    const isMember = await this.chatService.verifyGroupChatMember(
+      user._id,
+      payload.roomId,
     );
+    if (!isMember) {
+      client.disconnect();
+      console.log(
+        `Forbidden client [${client.id}] of user [${user.email}] disconnected`,
+      );
+      return;
+    }
+
+    const isInRoom = client.rooms.has(payload.roomId);
+    if (isInRoom) {
+      return;
+    }
 
     await this.leaveAllRooms(client);
 
     client.join(payload.roomId);
 
+    console.log(
+      `Client [${client.id}] of user [${user.email}] join room [${payload.roomId}]`,
+    );
+
     const last10MinutesTimestamp = new Date(Date.now() - 10 * 60000);
     const fetchChatHistoryPayload: FetchChatHistoryDto = {
       groupChatId: payload.roomId,
-      timestamp: last10MinutesTimestamp.toString(),
       limit: 10,
     };
     const messages = await this.chatService.fetchChatHistory(
+      user._id,
       fetchChatHistoryPayload,
     );
 
     for (let message of messages) {
+      // * have to use .emit because the messages need to be sent to the client that just joined the room
       client.emit('receive-message', message);
     }
   }

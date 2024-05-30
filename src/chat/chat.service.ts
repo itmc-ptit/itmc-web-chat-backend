@@ -6,26 +6,24 @@ import { CreateChatHistoryDto } from 'src/chat-history/dto/create-chat-history.d
 import { FetchChatHistoryDto } from 'src/chat-history/dto/fetch-chat-history.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UserToGroupServiceEvent } from 'src/user-to-group/entities/service-event.enum';
 
-/**
- * ! Error: Cannot user the websocket filter to filter the WsException
- * TODO: Use WsExceptionFilter to filter the WsException
- */
 @Injectable()
 export class ChatService {
   constructor(
     private readonly chatHistoryService: ChatHistoryService,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  // TODO: implement exception handling
   async authorizeClient(client: Socket) {
     const token = await this.getAuthToken(client);
     if (!token) {
       return null;
     }
-    const claims = await this.authorizeTohen(token);
+    const claims = await this.authorizeToken(token);
     if (!claims) {
       return null;
     }
@@ -49,19 +47,33 @@ export class ChatService {
     await this.chatHistoryService.create(newChatHistory);
   }
 
-  async fetchChatHistory(payload: FetchChatHistoryDto) {
-    return await this.chatHistoryService.findAllByGroupChatId(payload);
+  async fetchChatHistory(userId: string, payload: FetchChatHistoryDto) {
+    return await this.chatHistoryService.findAllByGroupChatId(userId, payload);
+  }
+
+  async verifyGroupChatMember(userId: string, groupChatId: string) {
+    const userToGroup = await this.eventEmitter.emit(
+      UserToGroupServiceEvent.USER_IN_GROUP_CHECKING,
+      userId,
+      groupChatId,
+    );
+    if (!userToGroup) {
+      return false;
+    }
+    return true;
   }
 
   private async getAuthToken(client: Socket): Promise<string> {
-    const token = client.handshake.headers?.authorization;
+    const token =
+      client.handshake.headers?.authorization || client.handshake.auth.Bearer;
+    console.log('token', token);
     if (!token) {
       return null;
     }
     return token;
   }
 
-  private async authorizeTohen(token: string) {
+  private async authorizeToken(token: string) {
     try {
       const decoded = this.jwtService.verify(token);
       return {

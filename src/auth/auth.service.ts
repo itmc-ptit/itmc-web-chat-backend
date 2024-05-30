@@ -29,7 +29,7 @@ export class AuthService {
       createUserDto.email,
     );
     if (existingUser) {
-      throw new BadRequestException('User already exists');
+      throw new BadRequestException('Email has been taken');
     }
 
     const hashedPassword = await this.hashData(createUserDto.password);
