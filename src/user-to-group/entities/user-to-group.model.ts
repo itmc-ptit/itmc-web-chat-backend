@@ -40,4 +40,4 @@ export class UserToGroup extends BaseEntity {
 
 export const UserToGroupSchema = SchemaFactory.createForClass(UserToGroup);
 
-UserToGroupSchema.index({ userId: 1, chatId: 1 }, { unique: true });
+UserToGroupSchema.index({ userId: 1, groupChatId: 1 }, { unique: true });

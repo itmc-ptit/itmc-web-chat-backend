@@ -45,6 +45,14 @@ export class UserToGroupService {
       throw new BadRequestException('Group chat not found!');
     }
 
+    const existingUserToGroup = await this.isUserInGroupChat(
+      payload.userId,
+      payload.groupChatId,
+    );
+    if (existingUserToGroup) {
+      throw new UnauthorizedException('User already in group chat!');
+    }
+
     const createdUserToGroup: UserToGroupDocument =
       await new this.userToGroupModel({
         ...payload,

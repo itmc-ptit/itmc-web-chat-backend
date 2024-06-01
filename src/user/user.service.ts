@@ -60,6 +60,21 @@ export class UserService {
     });
   }
 
+  async findByUsername(username: string) {
+    const user: UserDocument = await this.userModel.findOne({
+      username: username,
+      deleteAt: null,
+    });
+    return {
+      _id: user?._id,
+      firstName: user?.firstName,
+      lastName: user?.lastName,
+      email: user?.email,
+      username: user?.username,
+      gender: user?.gender,
+    };
+  }
+
   @OnEvent(UserServiceEvent.FIND_BY_EMAIL)
   async findByEmail(email: string): Promise<UserDocument> {
     return await this.userModel.findOne({ email: email, deleteAt: null });

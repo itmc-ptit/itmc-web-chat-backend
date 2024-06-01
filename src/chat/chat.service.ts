@@ -47,6 +47,10 @@ export class ChatService {
     await this.chatHistoryService.create(newChatHistory);
   }
 
+  async fetchUserInformation(userId: string) {
+    return await this.userService.findById(userId);
+  }
+
   async fetchChatHistory(userId: string, payload: FetchChatHistoryDto) {
     return await this.chatHistoryService.findAllByGroupChatId(userId, payload);
   }
@@ -63,10 +67,13 @@ export class ChatService {
     return true;
   }
 
+  async findUserByUsername(username: string) {
+    return await this.userService.findByUsername(username);
+  }
+
   private async getAuthToken(client: Socket): Promise<string> {
     const token =
       client.handshake.headers?.authorization || client.handshake.auth.Bearer;
-    console.log('token', token);
     if (!token) {
       return null;
     }

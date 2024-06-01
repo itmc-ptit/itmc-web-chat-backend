@@ -75,9 +75,6 @@ export class ChatHistoryService {
     userId: string,
     payload: FetchChatHistoryDto,
   ): Promise<ChatHistoryDocument[]> {
-    console.log(
-      '[Chat history service - findAllByGroupChatId()] Fetching chat history',
-    );
     if (!payload.groupChatId) {
       throw new BadRequestException('Group chat id is required');
     }
