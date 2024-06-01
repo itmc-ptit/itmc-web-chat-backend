@@ -10,6 +10,9 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UserToGroupServiceEvent } from 'src/user-to-group/entities/service-event.enum';
 import { UserToGroupDocument } from 'src/user-to-group/entities/user-to-group.model';
 import { MemberRole } from 'src/user-to-group/entities/member-role.enum';
+import { InvitationService } from 'src/invitation/invitation.service';
+import { IncomingInvitaionPayload } from './dto/incoming-invitaion.payload.dto';
+import { CreateInvitationDto } from 'src/invitation/dto/create-invitation.dto';
 
 @Injectable()
 export class ChatService {
@@ -17,6 +20,7 @@ export class ChatService {
     private readonly chatHistoryService: ChatHistoryService,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
+    private readonly invitationService: InvitationService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -88,6 +92,17 @@ export class ChatService {
     }
 
     return false;
+  }
+
+  async createInvitation(payload: IncomingInvitaionPayload) {
+    const dto: CreateInvitationDto = {
+      inviterId: payload.inviterId,
+      recipientId: payload.recipientId,
+      groupChatId: payload.groupChatId,
+      inviteReason: payload.inviteReason,
+      denyReason: null,
+    };
+    return await this.invitationService.create(dto);
   }
 
   async findUserByUsername(username: string) {

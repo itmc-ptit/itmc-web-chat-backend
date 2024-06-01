@@ -205,18 +205,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: IncomingInvitaionPayload,
   ) {
+    console.log(
+      '[Incoming invitaion] Received incoming invitation, payload:',
+      payload,
+    );
+
     const user = await this.chatService.authorizeClient(client);
     if (!user) {
-      client.disconnect();
       console.log('[Incoming invitaion] Unauthorized client disconnected');
+      client.disconnect();
       return;
     }
 
     if (user._id.toString() !== payload.inviterId) {
-      client.disconnect();
       console.log(
         `[Incoming invitaion] Disconnect client [${client.id}] of forbidden user [${user.email}] - User is not the inviter`,
       );
+      client.disconnect();
       return;
     }
 
@@ -225,14 +230,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       payload.groupChatId,
     );
     if (!isHost) {
-      client.disconnect();
       console.log(
         `[Incoming invitaion] Disconnect client [${client.id}] of forbidden user [${user.email}] - User is not the host of the group chat`,
       );
+      client.disconnect();
       return;
     }
 
+    console.log('[Incoming invitaion] Sending invitation to client');
     client.to(payload.groupChatId).emit('receive-invitation', payload);
+    await this.chatService.createInvitation(payload);
   }
 
   // * [Func] Make client leave all rooms

@@ -20,5 +20,6 @@ import { Invitation, InvitationSchema } from './entities/invitation.entity';
   ],
   controllers: [InvitationController],
   providers: [InvitationService],
+  exports: [InvitationService],
 })
 export class InvitationModule {}
