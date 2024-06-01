@@ -15,7 +15,7 @@ import { FetchChatHistoryDto } from 'src/chat-history/dto/fetch-chat-history.dto
 import { LeaveRoomPayload } from './dto/leave-room.payload.dto';
 import { ClientInformation } from './interface/client-information.interface';
 import { UserDocument } from 'src/user/entities/user.model';
-import { Json } from 'sequelize/types/utils';
+import { IncomingInvitaionPayload } from './dto/incoming-invitaion.payload.dto';
 
 @WebSocketGateway({ cors: true })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -28,21 +28,26 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   constructor(private readonly chatService: ChatService) {}
 
+  // * [Event] [connection]
   async handleConnection(client: Socket) {
     const user = await this.chatService.authorizeClient(client);
     if (!user) {
       client.disconnect();
-      console.log('Unauthorized client disconnected');
+      console.log('[Connection] Unauthorized client disconnected');
       return;
     }
 
-    console.log(`Client [${client.id}] of user [${user.email}] connected`);
+    console.log(
+      `[Connection] Client [${client.id}] of user [${user.email}] connected`,
+    );
   }
 
+  // * [Event] [disconnect]
   async handleDisconnect(client: any) {
-    console.log(`Client [${client.id}] disconnected`);
+    console.log(`[Disconnection] Client [${client.id}] disconnected`);
   }
 
+  // * [Event] [send-message]
   @SubscribeMessage('send-message')
   async handleSendMessageEvent(
     @ConnectedSocket()
@@ -52,10 +57,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = await this.chatService.authorizeClient(client);
     if (!user) {
       client.disconnect();
-      console.log('Unauthorized client disconnected');
+      console.log('[Send message] Unauthorized client disconnected');
       return;
     }
-    console.log(`Client [${client.id}] of user [${user.email}] sent message`);
+
+    console.log(
+      `[Send message] Client [${client.id}] of user [${user.email}] sent message`,
+    );
 
     const sendingMessage = {
       message: payload.message,
@@ -74,6 +82,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.chatService.saveNewMessages(payload);
   }
 
+  // * [Event] [join-room]
   @SubscribeMessage('join-room')
   async handleJoinRoomEvent(
     @ConnectedSocket()
@@ -84,7 +93,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = await this.chatService.authorizeClient(client);
     if (!user) {
       client.disconnect();
-      console.log('Unauthorized client disconnected');
+      console.log('[Join room] Unauthorized client disconnected');
       return;
     }
 
@@ -95,7 +104,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!isMember) {
       client.disconnect();
       console.log(
-        `Disconnect client [${client.id}] of forbidden user [${user.email}]`,
+        `[Join room] Disconnect client [${client.id}] of forbidden user [${user.email}] - User is not a member of group chat`,
       );
       return;
     }
@@ -112,7 +121,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.join(payload.roomId);
 
     console.log(
-      `Client [${client.id}] of user [${user.email}] join room [${payload.roomId}]`,
+      `[Join room] Client [${client.id}] of user [${user.email}] join room [${payload.roomId}]`,
     );
 
     const fetchChatHistoryPayload: FetchChatHistoryDto = {
@@ -130,6 +139,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  // * [Event] [leave-room]
   @SubscribeMessage('leave-room')
   async handleLeaveRoomEvent(
     @ConnectedSocket()
@@ -140,7 +150,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = await this.chatService.authorizeClient(client);
     if (!user) {
       client.disconnect();
-      console.log('Unauthorized client disconnected');
+      console.log('[Leave room] Unauthorized client disconnected');
       return;
     }
 
@@ -151,7 +161,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!isMember) {
       client.disconnect();
       console.log(
-        `Disconnect client [${client.id}] of forbidden user [${user.email}]`,
+        `[Leave room] Disconnect client [${client.id}] of forbidden user [${user.email}] - User is not a member of group chat`,
       );
       return;
     }
@@ -160,10 +170,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.leave(payload.roomId);
 
     console.log(
-      `Client [${client.id}] of user [${user.email}] leave room [${payload.roomId}]`,
+      `[Leave room] Client [${client.id}] of user [${user.email}] leave room [${payload.roomId}]`,
     );
   }
 
+  // * [Event] [find-user-by-username]
   @SubscribeMessage('find-user-by-username')
   async handleFindUserByUsernameEvent(
     @ConnectedSocket()
@@ -174,7 +185,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = await this.chatService.authorizeClient(client);
     if (!user) {
       client.disconnect();
-      console.log('Unauthorized client disconnected');
+      console.log('[Find user by username] Unauthorized client disconnected');
       return;
     }
 
@@ -188,6 +199,43 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return true;
   }
 
+  // * [Event] [incoming-invitation]
+  @SubscribeMessage('incoming-invitation')
+  async handleIncomingInvitaionEvent(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: IncomingInvitaionPayload,
+  ) {
+    const user = await this.chatService.authorizeClient(client);
+    if (!user) {
+      client.disconnect();
+      console.log('[Incoming invitaion] Unauthorized client disconnected');
+      return;
+    }
+
+    if (user._id.toString() !== payload.inviterId) {
+      client.disconnect();
+      console.log(
+        `[Incoming invitaion] Disconnect client [${client.id}] of forbidden user [${user.email}] - User is not the inviter`,
+      );
+      return;
+    }
+
+    const isHost = await this.chatService.verifyGroupChatAdmin(
+      user._id,
+      payload.groupChatId,
+    );
+    if (!isHost) {
+      client.disconnect();
+      console.log(
+        `[Incoming invitaion] Disconnect client [${client.id}] of forbidden user [${user.email}] - User is not the host of the group chat`,
+      );
+      return;
+    }
+
+    client.to(payload.groupChatId).emit('receive-invitation', payload);
+  }
+
+  // * [Func] Make client leave all rooms
   private async leaveAllRooms(client: Socket) {
     for (let room of client.rooms.keys()) {
       if (room !== client.id) {
@@ -196,6 +244,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  // * [Func] Show conversation dictionary
   private showDictionary() {
     console.log('Conversation dictionary:');
     for (let [roomId, members] of this.conversationsDictionary) {
@@ -207,6 +256,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log('------------------------');
   }
 
+  // * [Func] Check if client is in dictionary
   private async isClientInDictionary(
     clientId: string,
     roomId: string,
@@ -222,6 +272,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return true;
   }
 
+  // * [Func] Add member to dictionary
   private async addMemberToDictionary(
     clientId: string,
     user: UserDocument,
@@ -253,6 +304,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.showDictionary();
   }
 
+  // * [Func] Remove member from dictionary
   private async removeMemberFromDictionary(
     clientId: string,
     user: UserDocument,

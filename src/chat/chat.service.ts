@@ -8,6 +8,8 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UserToGroupServiceEvent } from 'src/user-to-group/entities/service-event.enum';
+import { UserToGroupDocument } from 'src/user-to-group/entities/user-to-group.model';
+import { MemberRole } from 'src/user-to-group/entities/member-role.enum';
 
 @Injectable()
 export class ChatService {
@@ -65,6 +67,27 @@ export class ChatService {
       return false;
     }
     return true;
+  }
+
+  async verifyGroupChatAdmin(userId: string, groupChatId: string) {
+    // ? Why this return an array?
+    const userToGroup: any = await this.eventEmitter.emitAsync(
+      UserToGroupServiceEvent.USER_IN_GROUP_CHECKING,
+      userId,
+      groupChatId,
+    );
+    if (!userToGroup) {
+      console.log('User not in group');
+      return false;
+    }
+
+    for (const user of userToGroup) {
+      if (user.role === MemberRole.Host) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   async findUserByUsername(username: string) {

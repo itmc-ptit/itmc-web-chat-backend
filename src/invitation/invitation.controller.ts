@@ -22,13 +22,13 @@ import { ReplyInvitationDto } from './dto/reply-invitaion.dto';
 export class InvitationController {
   constructor(private readonly invitationService: InvitationService) {}
 
-  @Get('/received/my')
+  @Get('/received')
   findAllByRecipientId(@Req() req: any): Promise<InvitationDocument[]> {
     const user: UserResponse = req.user;
     return this.invitationService.findAllByRecipientId(user._id.toString());
   }
 
-  @Get('invited/my')
+  @Get('/sent')
   findAllByInviterId(@Req() req: any): Promise<InvitationDocument[]> {
     const user: UserResponse = req.user;
     return this.invitationService.findAllByInviterId(user._id.toString());
