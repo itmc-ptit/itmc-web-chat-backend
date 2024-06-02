@@ -7,16 +7,24 @@ import { UserService } from 'src/user/user.service';
 import { Socket } from 'socket.io';
 import { PaginationPayloadDto } from './dto/pagination-payload.dto';
 import { ReplyInvitationDto } from 'src/invitation/dto/reply-invitaion.dto';
+import { CreateInvitationDto } from 'src/invitation/dto/create-invitation.dto';
 
 @Injectable()
 export class NotificationGatewayService {
   constructor(
-    private readonly notificationGatewayService: NotificationGatewayService,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly invitationService: InvitationService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
+
+  async findUserByUsername(username: string) {
+    return await this.userService.findByUsername(username);
+  }
+
+  async saveInvitation(payload: CreateInvitationDto) {
+    return await this.invitationService.create(payload);
+  }
 
   async fetchReceivedInvitaions(userId: string, payload: PaginationPayloadDto) {
     return await this.invitationService.findAllReceivedInvitation(

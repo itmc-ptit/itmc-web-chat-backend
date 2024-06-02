@@ -13,6 +13,7 @@ import { EntityResponseInterceptor } from './interceptors/entity-response.interc
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NotificationModule } from './notification/notification.module';
 import { InvitationModule } from './invitation/invitation.module';
+import { NotificationServerModule } from './notification-server/notification-server.module';
 require('dotenv').config();
 
 @Module({
@@ -23,6 +24,7 @@ require('dotenv').config();
     UserModule,
     ConfigModule.forRoot(),
     ChatModule,
+    NotificationServerModule,
     GroupChatModule,
     ChatHistoryModule,
     ChatBanModule,

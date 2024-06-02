@@ -221,31 +221,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
   }
 
-  // * [Event] [find-user-by-username]
-  @SubscribeMessage('find-user-by-username')
-  async handleFindUserByUsernameEvent(
-    @ConnectedSocket()
-    client: Socket,
-    @MessageBody()
-    username: string,
-  ) {
-    const user = await this.chatService.authorizeClient(client);
-    if (!user) {
-      client.disconnect();
-      console.log('[find-user-by-username] Unauthorized client disconnected');
-      return;
-    }
-
-    const foundUser = await this.chatService.findUserByUsername(username);
-    if (!foundUser) {
-      client.emit('user-not-found', 'User not found');
-      return false;
-    }
-
-    client.emit('user-found', foundUser);
-    return true;
-  }
-
   // * [Func] Make client leave all rooms
   private async leaveAllRooms(client: Socket) {
     for (let room of client.rooms.keys()) {
