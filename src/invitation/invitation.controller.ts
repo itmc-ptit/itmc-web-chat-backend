@@ -63,11 +63,6 @@ export class InvitationController {
     return this.invitationService.create(payload);
   }
 
-  @Get()
-  findAll(): Promise<InvitationDocument[]> {
-    return this.invitationService.findAll();
-  }
-
   @Get(':id')
   findById(@Param('id') id: string): Promise<InvitationDocument> {
     return this.invitationService.findById(id);
