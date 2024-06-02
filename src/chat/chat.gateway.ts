@@ -82,6 +82,36 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.chatService.saveNewMessages(payload);
   }
 
+  // * [Event] [join-private-room]
+  @SubscribeMessage('join-private-room')
+  async handleJoinPrivateRoomEvent(
+    @ConnectedSocket()
+    client: Socket,
+    @MessageBody()
+    userId: string,
+  ) {
+    const user = await this.chatService.authorizeClient(client);
+    if (!user) {
+      client.disconnect();
+      console.log('[Join room] Unauthorized client disconnected');
+      return;
+    }
+
+    if (user._id.toString() !== userId) {
+      client.disconnect();
+      console.log(
+        `[Join room] Disconnect client [${client.id}] of forbidden user [${user.email}] - User is not the owner of the room`,
+      );
+      return;
+    }
+
+    console.log(
+      `[Join room] Client [${client.id}] of user [${user.email}] join room [${client.id}]`,
+    );
+
+    client.join(client.id);
+  }
+
   // * [Event] [join-room]
   @SubscribeMessage('join-room')
   async handleJoinRoomEvent(
@@ -199,6 +229,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return true;
   }
 
+  // TODO: complete this function
   // * [Event] [incoming-invitation]
   @SubscribeMessage('incoming-invitation')
   async handleIncomingInvitaionEvent(
@@ -238,7 +269,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     console.log('[Incoming invitaion] Sending invitation to client');
-    client.to(payload.groupChatId).emit('receive-invitation', payload);
+    client.emit('receive-invitation', payload);
+    // client.to(payload.groupChatId).emit('receive-invitation', payload);
     await this.chatService.createInvitation(payload);
   }
 
