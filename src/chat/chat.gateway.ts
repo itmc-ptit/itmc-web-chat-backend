@@ -15,6 +15,7 @@ import { FetchChatHistoryDto } from 'src/chat-history/dto/fetch-chat-history.dto
 import { LeaveRoomPayload } from './dto/leave-room.payload.dto';
 import { ClientInformation } from './interface/client-information.interface';
 import { UserDocument } from 'src/user/entities/user.model';
+import { create } from 'domain';
 
 @WebSocketGateway({
   cors: true,
@@ -86,7 +87,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       payload,
     );
 
-    client.emit('receive-messages', messages);
+    client.emit('receive-message', messages);
     console.log(`[fetch-messages] Sent messages to client [${client.id}]`);
   }
 
@@ -115,11 +116,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .get(payload.groupChatId)
         .get(client.id),
       groupChatId: payload.groupChatId,
+      createAt: new Date(),
     };
-
-    //! While testing with postman, this line of code emits to the client twice
-    // * User socket.io server to emit to all clients in the room
-    this.server.to(payload.groupChatId).emit('receive-message', sendingMessage);
+    client.broadcast
+      .to(payload.groupChatId)
+      .emit('receive-message', sendingMessage);
 
     this.chatService.saveNewMessages(payload);
   }
