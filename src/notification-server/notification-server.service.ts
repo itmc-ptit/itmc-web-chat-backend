@@ -23,7 +23,15 @@ export class NotificationGatewayService {
   }
 
   async saveInvitation(payload: CreateInvitationDto) {
-    return await this.invitationService.create(payload);
+    try {
+      const response = await this.invitationService.create(payload);
+      return response;
+    } catch (error) {
+      if (error.status >= 400) {
+        return error;
+      }
+      return null;
+    }
   }
 
   async fetchReceivedInvitaions(userId: string, payload: PaginationPayloadDto) {
