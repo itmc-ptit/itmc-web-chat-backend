@@ -18,4 +18,12 @@ export class FetchChatHistoryDto {
   @IsNotEmpty()
   @Min(10)
   limit: number;
+
+  @ApiProperty({
+    type: Number,
+    description: 'Page number',
+  })
+  @IsNotEmpty()
+  @Min(0)
+  page: number;
 }

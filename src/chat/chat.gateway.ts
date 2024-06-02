@@ -15,7 +15,6 @@ import { FetchChatHistoryDto } from 'src/chat-history/dto/fetch-chat-history.dto
 import { LeaveRoomPayload } from './dto/leave-room.payload.dto';
 import { ClientInformation } from './interface/client-information.interface';
 import { UserDocument } from 'src/user/entities/user.model';
-import { IncomingInvitaionPayload } from './dto/incoming-invitaion.payload.dto';
 
 @WebSocketGateway({
   cors: true,
@@ -35,23 +34,65 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = await this.chatService.authorizeClient(client);
     if (!user) {
       client.disconnect();
-      console.log('[Connection] Unauthorized client disconnected');
+      console.log('[connection] Unauthorized client disconnected');
       return;
     }
 
     console.log(
-      `[Connection] Client [${client.id}] of user [${user.email}] connected`,
+      `[connection] Client [${client.id}] of user [${user.email}] connected`,
     );
   }
 
   // * [Event] [disconnect]
   async handleDisconnect(client: any) {
-    console.log(`[Disconnection] Client [${client.id}] disconnected`);
+    console.log(`[disconnect] Client [${client.id}] disconnected`);
+  }
+
+  // * [Event] [fetch-messages]
+  @SubscribeMessage('fetch-messages')
+  async fetchMessagesForClient(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: FetchChatHistoryDto,
+  ) {
+    const user = await this.chatService.authorizeClient(client);
+    if (!user) {
+      client.disconnect();
+      console.log(
+        `[fetch-messages] Unauthorized client [${client.id}] of [${user.email}] disconnected`,
+      );
+      return;
+    }
+
+    const isMember = await this.chatService.verifyGroupChatMember(
+      user._id,
+      payload.groupChatId,
+    );
+    if (!isMember) {
+      client.disconnect();
+      console.log(
+        `[fetch-messages] Disconnect client [${client.id}] of forbidden user [${user.email}] - User is not a member of group chat`,
+      );
+      return;
+    }
+
+    const clientInRoom = client.rooms.has(payload.groupChatId);
+    if (!clientInRoom) {
+      console.log(`[fetch-messages] Client [${client.id}] is not in room`);
+      return;
+    }
+
+    const messages = await this.chatService.fetchChatHistory(
+      user._id.toString(),
+      payload,
+    );
+
+    client.emit('receive-messages', messages);
+    console.log(`[fetch-messages] Sent messages to client [${client.id}]`);
   }
 
   // * [Event] [send-message]
   @SubscribeMessage('send-message')
-  async handleSendMessageEvent(
+  async handleSendMessageEventFromClient(
     @ConnectedSocket()
     client: Socket,
     @MessageBody() payload: MessagePayLoad,
@@ -75,43 +116,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .get(client.id),
       groupChatId: payload.groupChatId,
     };
-    /**
-     * ! While testing with postman, this line of code emits to the client twice
-     */
-    // * Sending message to all other client in the same room
-    client.to(payload.groupChatId).emit('receive-message', sendingMessage);
+
+    //! While testing with postman, this line of code emits to the client twice
+    // * User socket.io server to emit to all clients in the room
+    this.server.to(payload.groupChatId).emit('receive-message', sendingMessage);
 
     this.chatService.saveNewMessages(payload);
-  }
-
-  // * [Event] [join-private-room]
-  @SubscribeMessage('join-private-room')
-  async handleJoinPrivateRoomEvent(
-    @ConnectedSocket()
-    client: Socket,
-    @MessageBody()
-    userId: string,
-  ) {
-    const user = await this.chatService.authorizeClient(client);
-    if (!user) {
-      client.disconnect();
-      console.log('[Join room] Unauthorized client disconnected');
-      return;
-    }
-
-    if (user._id.toString() !== userId) {
-      client.disconnect();
-      console.log(
-        `[Join room] Disconnect client [${client.id}] of forbidden user [${user.email}] - User is not the owner of the room`,
-      );
-      return;
-    }
-
-    console.log(
-      `[Join room] Client [${client.id}] of user [${user.email}] join room [${client.id}]`,
-    );
-
-    client.join(client.id);
   }
 
   // * [Event] [join-room]
@@ -125,7 +135,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = await this.chatService.authorizeClient(client);
     if (!user) {
       client.disconnect();
-      console.log('[Join room] Unauthorized client disconnected');
+      console.log('[join-room] Unauthorized client disconnected');
       return;
     }
 
@@ -136,13 +146,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!isMember) {
       client.disconnect();
       console.log(
-        `[Join room] Disconnect client [${client.id}] of forbidden user [${user.email}] - User is not a member of group chat`,
+        `[join-room] Disconnect client [${client.id}] of forbidden user [${user.email}] - User is not a member of group chat`,
       );
       return;
     }
 
     const isInRoom = client.rooms.has(payload.roomId);
     if (isInRoom) {
+      console.log(
+        `[join-room] Client [${client.id}] of user [${user.email}] is already in room [${payload.roomId}]`,
+      );
       return;
     }
 
@@ -153,12 +166,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.join(payload.roomId);
 
     console.log(
-      `[Join room] Client [${client.id}] of user [${user.email}] join room [${payload.roomId}]`,
+      `[join-room] Client [${client.id}] of user [${user.email}] join room [${payload.roomId}]`,
     );
 
     const fetchChatHistoryPayload: FetchChatHistoryDto = {
       groupChatId: payload.roomId,
-      limit: 10,
+      limit: 20,
+      page: 0,
     };
     const messages = await this.chatService.fetchChatHistory(
       user._id,
@@ -182,7 +196,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = await this.chatService.authorizeClient(client);
     if (!user) {
       client.disconnect();
-      console.log('[Leave room] Unauthorized client disconnected');
+      console.log('[leave-room] Unauthorized client disconnected');
       return;
     }
 
@@ -193,7 +207,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!isMember) {
       client.disconnect();
       console.log(
-        `[Leave room] Disconnect client [${client.id}] of forbidden user [${user.email}] - User is not a member of group chat`,
+        `[leave-room] Disconnect client [${client.id}] of forbidden user [${user.email}] - User is not a member of group chat`,
       );
       return;
     }
@@ -202,7 +216,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.leave(payload.roomId);
 
     console.log(
-      `[Leave room] Client [${client.id}] of user [${user.email}] leave room [${payload.roomId}]`,
+      `[leave-room] Client [${client.id}] of user [${user.email}] leave room [${payload.roomId}]`,
     );
   }
 
@@ -217,7 +231,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = await this.chatService.authorizeClient(client);
     if (!user) {
       client.disconnect();
-      console.log('[Find user by username] Unauthorized client disconnected');
+      console.log('[find-user-by-username] Unauthorized client disconnected');
       return;
     }
 
@@ -229,51 +243,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     client.emit('user-found', foundUser);
     return true;
-  }
-
-  // TODO: complete this function
-  // * [Event] [incoming-invitation]
-  @SubscribeMessage('incoming-invitation')
-  async handleIncomingInvitaionEvent(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() payload: IncomingInvitaionPayload,
-  ) {
-    console.log(
-      '[Incoming invitaion] Received incoming invitation, payload:',
-      payload,
-    );
-
-    const user = await this.chatService.authorizeClient(client);
-    if (!user) {
-      console.log('[Incoming invitaion] Unauthorized client disconnected');
-      client.disconnect();
-      return;
-    }
-
-    if (user._id.toString() !== payload.inviterId) {
-      console.log(
-        `[Incoming invitaion] Disconnect client [${client.id}] of forbidden user [${user.email}] - User is not the inviter`,
-      );
-      client.disconnect();
-      return;
-    }
-
-    const isHost = await this.chatService.verifyGroupChatAdmin(
-      user._id,
-      payload.groupChatId,
-    );
-    if (!isHost) {
-      console.log(
-        `[Incoming invitaion] Disconnect client [${client.id}] of forbidden user [${user.email}] - User is not the host of the group chat`,
-      );
-      client.disconnect();
-      return;
-    }
-
-    console.log('[Incoming invitaion] Sending invitation to client');
-    client.emit('receive-invitation', payload);
-    // client.to(payload.groupChatId).emit('receive-invitation', payload);
-    await this.chatService.createInvitation(payload);
   }
 
   // * [Func] Make client leave all rooms

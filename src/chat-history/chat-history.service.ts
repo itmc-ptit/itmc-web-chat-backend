@@ -97,16 +97,16 @@ export class ChatHistoryService {
     }
 
     const numberOfMessages = payload.limit ? payload.limit : 10;
-
-    const query: any = {
-      groupChatId: payload.groupChatId,
-      deleteAt: null,
-    };
+    const skip = payload.page ? (payload.page - 1) * numberOfMessages : 0;
 
     return await this.chatHistoryModel
-      .find(query)
-      .sort({ createAt: -1 })
+      .find({
+        groupChatId: payload.groupChatId,
+        deleteAt: null,
+      })
+      .skip(skip)
       .limit(numberOfMessages)
+      .sort({ createAt: -1 })
       .populate('userId')
       .exec();
   }
