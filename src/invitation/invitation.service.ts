@@ -91,26 +91,42 @@ export class InvitationService {
       .exec();
   }
 
-  async findAllByInviterId(inviterId: string): Promise<InvitationDocument[]> {
+  async findAllSentInvitation(
+    inviterId: string,
+    page: number,
+    size: number,
+  ): Promise<InvitationDocument[]> {
+    const skip: number = (page - 1) * size;
     return await this.invitationModel
       .find({
         inviterId: inviterId,
         deleteAt: null,
       })
       .populate('recipientId')
-      .populate('groupChatId');
+      .populate('groupChatId')
+      .skip(skip)
+      .limit(size)
+      .exec();
   }
 
-  async findAllByRecipientId(
+  async findAllReceivedInvitation(
     recipientId: string,
+    page: number,
+    size: number,
   ): Promise<InvitationDocument[]> {
-    return await this.invitationModel
+    const skip: number = (page - 1) * size;
+    const invitations = await this.invitationModel
       .find({
         recipientId: recipientId,
         deleteAt: null,
       })
       .populate('inviterId')
-      .populate('groupChatId');
+      .populate('groupChatId')
+      .skip(skip)
+      .limit(size)
+      .exec();
+
+    return invitations;
   }
 
   async replyInvitaion(

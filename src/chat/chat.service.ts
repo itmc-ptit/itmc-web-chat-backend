@@ -8,7 +8,6 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UserToGroupServiceEvent } from 'src/user-to-group/entities/service-event.enum';
-import { UserToGroupDocument } from 'src/user-to-group/entities/user-to-group.model';
 import { MemberRole } from 'src/user-to-group/entities/member-role.enum';
 import { InvitationService } from 'src/invitation/invitation.service';
 import { IncomingInvitaionPayload } from './dto/incoming-invitaion.payload.dto';
@@ -109,6 +108,7 @@ export class ChatService {
     return await this.userService.findByUsername(username);
   }
 
+  // ! Could improve reuseablity of these two functions. This is duplicated in NotificationGateway
   private async getAuthToken(client: Socket): Promise<string> {
     const token =
       client.handshake.headers?.authorization || client.handshake.auth.Bearer;

@@ -16,6 +16,7 @@ import { InvitationDocument } from './entities/invitation.entity';
 import { UserResponse } from 'src/user/dto/user-response.dto';
 import { AccessTokenGuard } from 'src/auth/gurads/access-token-auth.guard';
 import { ReplyInvitationDto } from './dto/reply-invitaion.dto';
+import { FetchingInvitationPayloadDto } from './dto/fetching-invitation.payload.dto';
 
 @UseGuards(AccessTokenGuard)
 @Controller('api/v1/invitations')
@@ -23,15 +24,29 @@ export class InvitationController {
   constructor(private readonly invitationService: InvitationService) {}
 
   @Get('/received')
-  findAllByRecipientId(@Req() req: any): Promise<InvitationDocument[]> {
+  findAllByRecipientId(
+    @Req() req: any,
+    payload: FetchingInvitationPayloadDto,
+  ): Promise<InvitationDocument[]> {
     const user: UserResponse = req.user;
-    return this.invitationService.findAllByRecipientId(user._id.toString());
+    return this.invitationService.findAllReceivedInvitation(
+      user._id.toString(),
+      payload.page,
+      payload.limit,
+    );
   }
 
   @Get('/sent')
-  findAllByInviterId(@Req() req: any): Promise<InvitationDocument[]> {
+  findAllByInviterId(
+    @Req() req: any,
+    payload: FetchingInvitationPayloadDto,
+  ): Promise<InvitationDocument[]> {
     const user: UserResponse = req.user;
-    return this.invitationService.findAllByInviterId(user._id.toString());
+    return this.invitationService.findAllSentInvitation(
+      user._id.toString(),
+      payload.page,
+      payload.limit,
+    );
   }
 
   @Patch('reply')
