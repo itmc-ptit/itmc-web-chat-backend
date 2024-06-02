@@ -17,7 +17,9 @@ import { ClientInformation } from './interface/client-information.interface';
 import { UserDocument } from 'src/user/entities/user.model';
 import { IncomingInvitaionPayload } from './dto/incoming-invitaion.payload.dto';
 
-@WebSocketGateway({ cors: true })
+@WebSocketGateway({
+  cors: true,
+})
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
 
